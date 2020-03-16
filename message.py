@@ -98,7 +98,7 @@ class Message:
         ret += struct.pack('H', self.command.value)
         ret += struct.pack('H', len(self.payload))
         if self.target_id != 0:
-            ret += struct.pack('BBBBBB', self.dest)
+            ret += struct.pack('BBBBBB', *self.dest)
         ret += self.payload
         return ret
 
@@ -159,10 +159,10 @@ class Message:
         return self.to_bytes() == other.to_bytes()
 
     def __str__(self):
-        source = ':'.join([hex(b)[2:] for b in self.source])
+        source = ':'.join([hex(b)[2:].zfill(2) for b in self.source])
         dest = 'BROADCAST'
         if self.dest is not None:
-            dest = ':'.join([hex(b)[2:] for b in self.dest])
+            dest = ':'.join([hex(b)[2:].zfill(2) for b in self.dest])
         payload = self.payload if self.payload else 'none'
         ret = f"""[header]
     [source]      = {source}

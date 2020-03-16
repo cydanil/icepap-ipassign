@@ -28,7 +28,7 @@ def test_message_object_initialisation(monkeypatch):
     assert m.packet_number == 2
 
     expected = """[header]
-    [source]      = 0:b:ad:c0:ff:ee
+    [source]      = 00:0b:ad:c0:ff:ee
     [target id]   = 0
     [packet no]   = 2
     [command]     = commands.CHANGE_IP
