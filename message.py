@@ -62,9 +62,9 @@ class Message:
         self.target_id = target_id
 
         if packet_number is None:
-            packet_number = Message.packno
-            Message.packno += 1
+            packet_number = Message.packno + 1
         self.packet_number = packet_number
+        Message.packno = self.packet_number
 
         if not isinstance(command, commands):
             raise TypeError('expected a command enum')
@@ -84,7 +84,7 @@ class Message:
 
     @source.setter
     def source(self, val):
-        if not hasattr(val, '__iter__') and len(val) != 6:
+        if not hasattr(val, '__iter__') or len(val) != 6:
             print('source should be 6 uint8, setting hw mac address')
             val = get_hw_addr()
         self._source = val
@@ -178,4 +178,4 @@ class Message:
         return ret
 
     def __repr__(self):
-        return 'Message.frombytes("{self.tobytes()}"'
+        return f'Message.from_bytes("{self.to_bytes()}")'
