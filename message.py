@@ -75,7 +75,7 @@ class Message:
         self.dest = destination
 
         if not isinstance(payload, bytes):
-            raise TypeError(f'payload should be a bytearray, not {type(payload)}')
+            raise TypeError(f'payload should be a bytes, not {type(payload)}')
         self.payload = payload
 
     @property
@@ -116,7 +116,7 @@ class Message:
     @classmethod
     def from_bytes(cls, barray):
         if not isinstance(barray, bytes):
-            return TypeError('Expected bytes, not {type(barray)}')
+            raise TypeError(f'Expected bytes, not {type(barray)}')
         if not 17 < len(barray) < 1048:
             msg = ('A valid array has length between 18 and 1048, '
                    f'not {len(barray)}.')
@@ -126,7 +126,8 @@ class Message:
 
         given, = struct.unpack('I', barray[-4:])
         calculated = zlib.crc32(packet)
-        assert given == calculated, f'Invalid CRC! Got {given} and calculated {calculated}'
+        assert given == calculated, (f'Invalid CRC! Got {given} '
+                                     f'but calculated {calculated}')
 
         source = packet[:6]
         source = struct.unpack('BBBBBB', source)
@@ -147,7 +148,7 @@ class Message:
             dest = struct.unpack('BBBBBB', dest)
 
         payload = packet[20:]
-        assert len(payload) == payload_len, 'Given payload lengths do not match'
+        assert len(payload) == payload_len, 'Payload lengths do not match'
 
         return Message(source, target_id, packet_no, cmd, dest, payload)
 
