@@ -124,10 +124,10 @@ class Message:
 
         packet = barray[:-4]
 
-        given, = struct.unpack('I', barray[-4:])
+        expected, = struct.unpack('I', barray[-4:])
         calculated = zlib.crc32(packet)
-        assert given == calculated, (f'Invalid CRC! Got {given} '
-                                     f'but calculated {calculated}')
+        assert expected == calculated, (f'Invalid CRC! Got {expected} '
+                                        f'but calculated {calculated}')
 
         source = packet[:6]
         source = struct.unpack('BBBBBB', source)

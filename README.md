@@ -72,6 +72,50 @@ An other example, of a reply to this broadcast hello, is:
 
 The next thing is to implement payload (de)-serialisation.
 
+# Configuration Payload
+A payload is either a device's current network configuration, or one it should apply.
+The payload has the following structure:
+
+    [icepap id]    # 6 bytes, 6 x uint8
+    [ip address]   # 4 bytes, uint32, little endian
+    [broadcast]    # ditto
+    [netmask]      # ditto
+    [gateway]      # ditto
+    [mac address]  # 6 bytes, 6 x uint8
+    [flags]        # 2 bytes, uint32
+    [hostname]     # 24 bytes, ascii string
+
+[icepap id] is the mac address of the device providing or applying the config.
+[ip address] is this configuration's address.
+[broadcast] is this configuration's broadcast address.
+[netmask] is this configuration's netmask.
+[gateway] is this configuration's gateway address.
+[mac address] is this configuration's mac address.
+[flags] are the actions the device should do upon applying a new configuration.
+[hostname] is this configuration's hostname.
+
+The device can be asked to perform one of three actions upon applying a new
+configuration. These are set in the [flags] field and are:
+    reboot (first bit set);
+    dynamically apply the changes (second bit set);
+    write them to flash (third bit set).
+
+TODO: Add example payload here.
+
+# Acknowledgment Payload
+An acknowledgment payload has the following structure:
+
+    [packet number] # 2 bytes, uint16
+    [error code]    # 2 bytes, uint16
+
+[packet number] is the packet number refering to the acknowledge packet.
+                If a configuration packet was sent with packet number 5,
+                then this field will be 5, and you'll know that the 
+                configuration sent then was treated.
+[error code] is a status code of having applied the received settings.
+
+TODO: Add example payload here.
+
 # Testing
 Testing makes use of `pytest` so:
 
