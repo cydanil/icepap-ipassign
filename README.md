@@ -83,7 +83,7 @@ The payload has the following structure:
     [gateway]      # ditto
     [mac address]  # 6 bytes, 6 x uint8
     [flags]        # 2 bytes, uint32
-    [hostname]     # 24 bytes, ascii string
+    [hostname]     # variable length, 24 bytes max, ascii string
 
 [icepap id] is the mac address of the device providing or applying the config.
 [ip address] is this configuration's address.
@@ -100,7 +100,16 @@ configuration. These are set in the [flags] field and are:
     dynamically apply the changes (second bit set);
     write them to flash (third bit set).
 
-TODO: Add example payload here.
+Here is configuration payload, represented in hex:
+
+  0x00 0x0C 0xC6 0x69 0x13 0x2D                 # icepap id, a mac address
+  0xAC 0x18 0x9B 0xDE 0xAC                      # IP address, 172.24.155.222
+  0xAC 0x18 0x9B 0xDE 0xFF                      # broadcast, 172.24.155.255
+  0xFF 0xFF 0xFF 0xFF 0x00                      # netmask, 255.255.255.0
+  0xAC 0x18 0x9B 0xDE 0x63                      # gateway, 172.24.155.99
+  0x00 0x0C 0xC6 0x69 0x13 0x2D                 # reprogrammable mac address
+  0x00                                          # flags, none
+  0X74 0X68 0X78 0X63 0X6F 0X72 0X6F 0X6E 0X61  # hostname
 
 # Acknowledgment Payload
 An acknowledgment payload has the following structure:
@@ -109,9 +118,9 @@ An acknowledgment payload has the following structure:
     [error code]    # 2 bytes, uint16
 
 [packet number] is the packet number refering to the acknowledge packet.
-                If a configuration packet was sent with packet number 5,
-                then this field will be 5, and you'll know that the 
-                configuration sent then was treated.
+                If a configuration packet was sent with packet number 5, then
+                it is then possible to check that the settings match the ones
+                in the packet of that packet.
 [error code] is a status code of having applied the received settings.
 
 TODO: Add example payload here.

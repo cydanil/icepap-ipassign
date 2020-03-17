@@ -30,13 +30,13 @@ configuration. These are set in the [flags] field and are:
 
 An IcePap acknowledgment payload has the following structure:
 
-    [packno]     # 2 bytes, uint16
-    [error code] # 2 bytes, uint16
+    [packet number] # 2 bytes, uint16
+    [error code]    # 2 bytes, uint16
 
-[packno] is the packet number refering to the acknowledge packet.
-         If a configuration packet was sent with packet number 5, then this
-         field will be 5, and you'll know that the configuration sent then was
-         treated.
+[packet number] is the packet number refering to the acknowledge packet.
+                If a configuration packet was sent with packet number 5, then
+                it is then possible to check that the settings match the ones
+                in the packet of that packet.
 [error code] is a status code of having applied the received settings.
 """
 import struct
