@@ -91,8 +91,7 @@ class Message:
 
     @property
     def __bytes(self):
-        ret = bytes()
-        ret += struct.pack('BBBBBB', *self.source)
+        ret = struct.pack('BBBBBB', *self.source)
         ret += struct.pack('H', self.target_id)
         ret += struct.pack('H', self.packet_number)
         ret += struct.pack('H', self.command.value)

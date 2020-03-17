@@ -57,9 +57,15 @@ class Payload:
         self.flash = flash
         self.hostname = hostname
 
-    def to_bytes(self):
-        assert len(self.hostname) <= 24, 'Provided hostname too long'
-        return b''
+    @property
+    def hostname(self):
+        return self._hostname
+
+    @hostname.setter
+    def hostname(self, val):
+        if 24 < len(val):
+            raise ValueError('hostname too long, should be max. 24')
+        self._hostname = val
 
     @classmethod
     def from_bytes(cls, barray):
@@ -87,7 +93,59 @@ class Payload:
         dynamic = bool((flags >> 1) & 1)
         flash = bool((flags >> 2) & 1)
 
-        hostname = barray[32:].decode()
+        hostname = barray[32:].decode().strip('\x00')
 
         return Payload(target_id, ip, bc, nm, gw, mac,
                        reboot, dynamic, flash, hostname)
+
+    def to_bytes(self):
+        ret = struct.pack('BBBBBB', *self.target_id)
+        ret += struct.pack('BBBB', *self.ip)
+        ret += struct.pack('BBBB', *self.bc)
+        ret += struct.pack('BBBB', *self.nm)
+        ret += struct.pack('BBBB', *self.gw)
+        ret += struct.pack('BBBBBB', *self.mac)
+
+        flags = 0
+        if self.reboot:
+            flags += 1 << 0
+        if self.dynamic:
+            flags += 1 << 1
+        if self.flash:
+            flags += 1 << 2
+        ret += struct.pack('I', flags)
+
+        ret += self.hostname.encode()
+        pad = 24 - len(self.hostname)
+        ret += b'\x00' * pad
+        return ret
+
+    def __str__(self):
+        target = ':'.join([hex(b)[2:].zfill(2) for b in self.target_id])
+        mac = ':'.join([hex(b)[2:].zfill(2) for b in self.mac])
+        flags = ''
+        if self.reboot:
+            flags += 'reboot; '
+        if self.dynamic:
+            flags += 'dynamic; '
+        if self.flash:
+            flags += 'flash;'
+        ret = f"""[payload]
+    [target id]   = {target}
+    [ip address]  = {'.'.join([str(b) for b in self.ip])}
+    [broadcast]   = {'.'.join([str(b) for b in self.bc])}
+    [netmask]     = {'.'.join([str(b) for b in self.nm])}
+    [gateway]     = {'.'.join([str(b) for b in self.gw])}
+    [mac address] = {mac}
+
+    [flags]       = {flags}
+    [hostname]    = {self.hostname}"""
+        return ret
+
+    def __repr__(self):
+        return f'Payload.from_bytes("{self.to_bytes()}")'
+
+    def __eq__(self, other):
+        if isinstance(other, Payload):
+            other = other.to_bytes()
+        return self.to_bytes() == other
