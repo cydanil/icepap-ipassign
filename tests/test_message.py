@@ -1,9 +1,7 @@
 import pytest
 
-from commands import commands
-import message
-from message import Message
-from payload import Payload
+from ipassign import commands, Message, Payload
+from ipassign import message
 
 from test_data import PACKET, PAYLOAD, REPLY
 

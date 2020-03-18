@@ -7,6 +7,13 @@ Its aim is to provide an easy way to set-up network settings over network, witho
 
 It does so using UDP broadcast on port `12345`.
 
+## Installing
+
+This package requires Python 3.6+.  
+Clone and download this repository, and install it with `pip`:
+
+    pip install .
+
 ## Packet Format
 
 An IPAssign packet has the following structure:
@@ -53,8 +60,9 @@ This is therefore the smallest message that can be sent.
 An other example, of a reply to this broadcast hello, is:
 
 ```python
-from message import Message
+from ipassign import Message
 pp = b'\x00\x0c\xc6\x69\x13\x2d\x01\x00\x00\x00\x03\x00\x38\x00\x00\x22\x19\x06\xbf\x58\x00\x0c\xc6\x69\x13\x2d\xac\x18\x9b\xde\xac\x18\x9b\xff\xff\xff\xff\x00\xac\x18\x9b\x63\x00\x0c\xc6\x69\x13\x2d\x00\x00\x00\x00\x69\x63\x65\x65\x75\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xb3\x57\x23\x0d'
+
 m = Message.from_bytes(pp)
 
 print(m)
@@ -73,10 +81,9 @@ print(m)
     [gateway]     = 172.24.155.99
     [mac address] = 00:0c:c6:69:13:2d
 
-    [flags]       = 
+    [flags]       =
     [hostname]    = iceeu4
 [checksum] = 0xd2357b3
-
 ```
 
 ## Configuration Payload
@@ -140,4 +147,5 @@ TODO: Add example payload here.
 
 Testing is done with `pytest`:
 
+    pip install .
     pytest -vv

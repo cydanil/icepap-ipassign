@@ -44,8 +44,8 @@ This is therefore the smallest message that can be sent.
 import struct
 import zlib
 
-from commands import commands
-from payload import Payload
+from .commands import commands
+from .payload import Payload
 
 
 def get_hw_addr(iface='eth0'):
