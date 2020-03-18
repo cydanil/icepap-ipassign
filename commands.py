@@ -5,8 +5,8 @@ from enum import Enum
 
 
 class commands(Enum):
-    REQUEST_PARAMS = 0x0002
-    SEND_PARAMS = 0x0003
+    REQUEST_CONFIG = 0x0002
+    SEND_CONFIG = 0x0003
 
     RESET = 0x0004
     RESET_ACK = 0x0005
@@ -21,5 +21,5 @@ class commands(Enum):
 
     SEND_ASC_DATA = 0x000E
 
-    CHANGE_PARAMS = 0x000F
-    CHANGE_PARAMS_ACK = 0x0010
+    UPDATE_CONFIG = 0x000F
+    UPDATE_CONFIG_ACK = 0x0010
