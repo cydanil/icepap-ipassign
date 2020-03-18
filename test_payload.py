@@ -1,7 +1,6 @@
 import pytest
 from payload import Payload
-
-PAYLOAD = b'\x00\x0c\xc6\x69\x13\x2d\xac\x18\x9b\xde\xac\x18\x9b\xff\xff\xff\xff\x00\xac\x18\x9b\x63\x00\x0c\xc6\x69\x13\x2d\x00\x00\x00\x00\x69\x63\x65\x65\x754\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'  # noqa
+from test_data import PAYLOAD
 
 
 def test_deserialisation():
@@ -16,7 +15,7 @@ def test_deserialisation():
     [gateway]     = 172.24.155.99
     [mac address] = 00:0c:c6:69:13:2d
 
-    [flags]       = \n\
+    [flags]       =
     [hostname]    = iceeu4"""
 
     assert str(p) == expected

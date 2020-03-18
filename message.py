@@ -45,6 +45,7 @@ import struct
 import zlib
 
 from commands import commands
+from payload import Payload
 
 
 def get_hw_addr(iface='eth0'):
@@ -70,12 +71,7 @@ class Message:
             raise TypeError('expected a command enum')
         self.command = command
 
-        if not hasattr(destination, '__iter__') or len(destination) != 6:
-            destination = None
         self.dest = destination
-
-        if not isinstance(payload, bytes):
-            raise TypeError(f'payload should be a bytes, not {type(payload)}')
         self.payload = payload
 
     @property
@@ -84,10 +80,39 @@ class Message:
 
     @source.setter
     def source(self, val):
+        if isinstance(val, str):
+            val = [int(b, base=16) for b in val.split(':')]
         if not hasattr(val, '__iter__') or len(val) != 6:
             print('source should be 6 uint8, setting hw mac address')
             val = get_hw_addr()
         self._source = val
+
+    @property
+    def dest(self):
+        return self._dest
+
+    @dest.setter
+    def dest(self, val):
+        if isinstance(val, str):
+            val = [int(b, base=16) for b in val.split(':')]
+        if not hasattr(val, '__iter__') or len(val) != 6:
+            val = None
+        self._dest = val
+
+    @property
+    def payload(self):
+        return self._payload
+
+    @payload.setter
+    def payload(self, val):
+        if isinstance(val, Payload):
+            pass
+        elif isinstance(val, bytes):
+            if len(val) != 0:
+                val = Payload.from_bytes(val)
+        else:
+            raise TypeError(f'Payload should be bytes, not {type(val)}')
+        self._payload = val
 
     @property
     def __bytes(self):
@@ -98,7 +123,11 @@ class Message:
         ret += struct.pack('H', len(self.payload))
         if self.target_id != 0:
             ret += struct.pack('BBBBBB', *self.dest)
-        ret += self.payload
+
+        if isinstance(self.payload, bytes):
+            ret += self.payload
+        else:
+            ret += self.payload.to_bytes()
         return ret
 
     @property
@@ -155,25 +184,25 @@ class Message:
         return len(self.to_bytes())
 
     def __eq__(self, other):
-        return self.to_bytes() == other.to_bytes()
+        if isinstance(other, Message):
+            other = other.to_bytes()
+        return self.to_bytes() == other
 
     def __str__(self):
         source = ':'.join([hex(b)[2:].zfill(2) for b in self.source])
         dest = 'BROADCAST'
         if self.dest is not None:
             dest = ':'.join([hex(b)[2:].zfill(2) for b in self.dest])
-        payload = self.payload if self.payload else 'none'
+        payload = self.payload if self.payload else '[payload] = none'
         ret = f"""[header]
     [source]      = {source}
     [target id]   = {self.target_id}
     [packet no]   = {self.packet_number}
     [command]     = {self.command}
     [payload len] = {len(self.payload)}
-
 [destination] = {dest}
-[payload] = {payload}
-[checksum] = {hex(self.checksum)}
-"""
+{payload}
+[checksum] = {hex(self.checksum)}"""
         return ret
 
     def __repr__(self):

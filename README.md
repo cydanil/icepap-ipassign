@@ -64,10 +64,19 @@ print(m)
     [packet no]   = 0
     [command]     = commands.SEND_PARAMS
     [payload len] = 56
-
 [destination] = 00:22:19:06:bf:58
-[payload] = b'\x00\x0c\xc6i\x13-\xac\x18\x9b\xde\xac\x18\x9b\xff\xff\xff\xff\x00\xac\x18\x9bc\x00\x0c\xc6i\x13-\x00\x00\x00\x00iceeu4\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+[payload]
+    [target id]   = 00:0c:c6:69:13:2d
+    [ip address]  = 172.24.155.222
+    [broadcast]   = 172.24.155.255
+    [netmask]     = 255.255.255.0
+    [gateway]     = 172.24.155.99
+    [mac address] = 00:0c:c6:69:13:2d
+
+    [flags]       = 
+    [hostname]    = iceeu4
 [checksum] = 0xd2357b3
+
 ```
 
 ## Configuration Payload
@@ -109,7 +118,7 @@ Here is configuration payload:
     0xFF 0xFF 0xFF 0xFF 0x00                      # netmask, 255.255.255.0
     0xAC 0x18 0x9B 0xDE 0x63                      # gateway, 172.24.155.99
     0x00 0x0C 0xC6 0x69 0x13 0x2D                 # reprogrammable mac address
-    0x00                                          # flags, none
+    0x00 0x00                                     # flags, none
     0X74 0X68 0X78 0X63 0X6F 0X72 0X6F 0X6E 0X61  # hostname
 
 ## Acknowledgment Payload

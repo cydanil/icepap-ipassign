@@ -3,8 +3,9 @@ import pytest
 from commands import commands
 import message
 from message import Message
+from payload import Payload
 
-PACKET = b'\x78\x45\xc4\xf7\x8f\x48\x00\x00\x01\x00\x02\x00\x00\x00\x31\x8f\x64\x48'  # noqa
+from test_data import PACKET, PAYLOAD, REPLY
 
 
 def test_message_object_initialisation(monkeypatch):
@@ -33,12 +34,12 @@ def test_message_object_initialisation(monkeypatch):
     [packet no]   = 2
     [command]     = commands.CHANGE_IP
     [payload len] = 0
-
 [destination] = BROADCAST
 [payload] = none
-[checksum] = 0xa922c58
-"""
+[checksum] = 0xa922c58"""
     assert str(m) == expected
+
+    m.source = "00:de:ad:be:ef:00"
 
 
 def test_deserialisation():
@@ -74,3 +75,77 @@ def test_deserialisation():
 def test_serialisation():
     m = Message.from_bytes(PACKET)
     assert m.to_bytes() == PACKET
+
+
+def test_parse_reply():
+    m = Message.from_bytes(REPLY)
+    assert m.to_bytes() == REPLY
+    assert m == REPLY
+
+    expected = """[header]
+    [source]      = 00:0c:c6:69:13:2d
+    [target id]   = 1
+    [packet no]   = 0
+    [command]     = commands.SEND_CONFIG
+    [payload len] = 56
+[destination] = 00:22:19:06:bf:58
+[payload]
+    [target id]   = 00:0c:c6:69:13:2d
+    [ip address]  = 172.24.155.222
+    [broadcast]   = 172.24.155.255
+    [netmask]     = 255.255.255.0
+    [gateway]     = 172.24.155.99
+    [mac address] = 00:0c:c6:69:13:2d
+
+    [flags]       =
+    [hostname]    = iceeu4
+[checksum] = 0xd2357b3"""
+
+    assert str(m) == expected
+
+
+def test_message_payload_integration():
+    p = Payload.from_bytes(PAYLOAD)
+    p.reboot = True
+    source = "00:0c:c6:69:13:2d"
+    target_id = 5
+    destination = "00:de:ad:be:ef:00"
+    command = commands.UPDATE_CONFIG
+
+    m = Message(source=source,
+                target_id=target_id,
+                command=command,
+                destination=destination,
+                payload=p)
+
+    mm = Message(source=source,
+                 target_id=target_id,
+                 packet_number=1,
+                 command=command,
+                 destination=destination,
+                 payload=PAYLOAD)
+    mm.payload.reboot = True
+
+    mmm = Message(source=source,
+                  target_id=target_id,
+                  packet_number=1,
+                  command=command,
+                  destination=destination,
+                  payload=b'')
+    mmm.payload = PAYLOAD
+    mmm.payload.reboot = True
+
+    mmmm = Message(source=source,
+                   target_id=target_id,
+                   packet_number=1,
+                   command=command,
+                   destination=destination,
+                   payload=b'')
+    mmmm.payload = p
+
+    print(m)
+    print()
+    print(mm)
+    assert m == mm
+    assert mm == mmm
+    assert mmm == mmmm

@@ -125,11 +125,11 @@ class Payload:
         mac = ':'.join([hex(b)[2:].zfill(2) for b in self.mac])
         flags = ''
         if self.reboot:
-            flags += 'reboot; '
+            flags += ' reboot'
         if self.dynamic:
-            flags += 'dynamic; '
+            flags += ' dynamic'
         if self.flash:
-            flags += 'flash;'
+            flags += ' flash'
         ret = f"""[payload]
     [target id]   = {target}
     [ip address]  = {'.'.join([str(b) for b in self.ip])}
@@ -138,7 +138,7 @@ class Payload:
     [gateway]     = {'.'.join([str(b) for b in self.gw])}
     [mac address] = {mac}
 
-    [flags]       = {flags}
+    [flags]       ={flags}
     [hostname]    = {self.hostname}"""
         return ret
 
@@ -149,3 +149,6 @@ class Payload:
         if isinstance(other, Payload):
             other = other.to_bytes()
         return self.to_bytes() == other
+
+    def __len__(self):
+        return len(self.to_bytes())
