@@ -129,7 +129,7 @@ These are set in the `[flags]` field and are:
 - dynamically apply the changes (second bit set);
 - write them to flash (third bit set).
 
-Here is configuration payload:
+Here is a configuration payload:
 
     0x00 0x0C 0xC6 0x69 0x13 0x2D                 # icepap id, a mac address
     0xAC 0x18 0x9B 0xDE 0xAC                      # IP address, 172.24.155.222
