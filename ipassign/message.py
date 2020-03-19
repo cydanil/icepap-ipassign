@@ -47,6 +47,9 @@ import zlib
 from .commands import commands
 from .payload import Payload
 
+MIN_PACKET_LENGTH = 17
+MAX_PACKET_LENGTH = 1048
+
 
 def get_hw_addr(iface='eth0'):
     with open(f'/sys/class/net/{iface}/address', 'r') as iface:
@@ -145,7 +148,7 @@ class Message:
     def from_bytes(cls, barray):
         if not isinstance(barray, bytes):
             raise TypeError(f'Expected bytes, not {type(barray)}')
-        if not 17 < len(barray) < 1048:
+        if not MIN_PACKET_LENGTH < len(barray) < MAX_PACKET_LENGTH:
             msg = ('A valid array has length between 18 and 1048, '
                    f'not {len(barray)}.')
             raise ValueError(msg, barray, len(barray))

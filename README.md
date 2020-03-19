@@ -3,9 +3,7 @@
 Remotely configure icepap network settings.
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
-Its aim is to provide an easy way to set-up network settings over network, without the need for a complete DaNCE suite.
-
-It does so using UDP broadcast on port `12345`.
+Its aim is to provide an easy way to set-up network settings over UDP multicast, without the need for a complete DaNCE suite.
 
 ## Installing
 
@@ -13,6 +11,20 @@ This package requires Python 3.6+.
 Clone and download this repository, and install it with `pip`:
 
     pip install .
+
+## Networking
+
+ipassign uses UDP multicast on `225.0.0.37` port `12345`.
+For demonstration purposes, a simple listener is available in `utils/listener.py` and can be invoked so:
+
+```bash
+$ ipassign-listener
+
+Waiting for messages...
+```
+
+Messages seen in the broadcast will then be displayed.
+
 
 ## Packet Format
 
