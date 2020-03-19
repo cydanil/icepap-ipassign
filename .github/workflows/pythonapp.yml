@@ -35,8 +35,3 @@ jobs:
         pip install .
         pip install pytest
         pytest
-    - name: Run listener
-      run: |
-        ipassign-listener &
-        sleep 1
-        killall ipassign-listener

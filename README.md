@@ -14,7 +14,17 @@ Clone and download this repository, and install it with `pip`:
 
 ## Networking
 
-ipassign uses UDP multicast on `225.0.0.37` port `12345`.
+ipassign uses UDP multicast on `225.0.0.37` port `12345`.  
+A typical exchange of information has the following format:
+
+    [ipassign] who's there? discovery packet
+    [icepap 1] me, my mac address is 00:... and my configuration is ...
+    [icepap 2] me, my mac address is 01:... and my configuration is ...
+    [ipassign] device with mac 01:... , please apply the following configuration: ...
+               and reboot/apply now dynamically/write to flash.
+    [icepap 2] okay, here's an ack message, with my status code following your request.
+    [ipassign] who's there? discovery packet
+
 For demonstration purposes, a simple listener is available in `utils/listener.py` and can be invoked so:
 
 ```bash
@@ -55,7 +65,7 @@ An IPAssign packet has the following structure:
                 `ipassign.commands`
   - `[payload size]` describes the quantity of bytes in the payload to read.
 
-Here is the anatomy of a broadcast message:
+Here is the anatomy of a discovery message:
 
     0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
     0x00                            # target id (broadcast)
@@ -69,7 +79,7 @@ Note, had data been sent, it would have been located between the destination
 mac and the checksum.
 This is therefore the smallest message that can be sent.
 
-An other example, of a reply to this broadcast hello, is:
+An other example, of a reply to this discovery message, is:
 
 ```python
 from ipassign import Message

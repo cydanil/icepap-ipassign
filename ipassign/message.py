@@ -201,7 +201,7 @@ class Message:
     [source]      = {source}
     [target id]   = {self.target_id}
     [packet no]   = {self.packet_number}
-    [command]     = {self.command}
+    [command]     = {self.command.name} [{hex(self.command.value)}]
     [payload len] = {len(self.payload)}
 [destination] = {dest}
 {payload}

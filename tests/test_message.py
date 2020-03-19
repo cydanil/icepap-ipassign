@@ -30,7 +30,7 @@ def test_message_object_initialisation(monkeypatch):
     [source]      = 00:0b:ad:c0:ff:ee
     [target id]   = 0
     [packet no]   = 2
-    [command]     = commands.CHANGE_IP
+    [command]     = CHANGE_IP [0x6]
     [payload len] = 0
 [destination] = BROADCAST
 [payload] = none
@@ -84,7 +84,7 @@ def test_parse_reply():
     [source]      = 00:0c:c6:69:13:2d
     [target id]   = 1
     [packet no]   = 0
-    [command]     = commands.SEND_CONFIG
+    [command]     = SEND_CONFIG [0x3]
     [payload len] = 56
 [destination] = 00:22:19:06:bf:58
 [payload]
