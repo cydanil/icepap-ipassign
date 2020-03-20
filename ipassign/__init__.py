@@ -1,4 +1,4 @@
-from .commands import commands
+from .utils import commands
 from .message import MAX_PACKET_LENGTH, Message, MIN_PACKET_LENGTH
 from .payload import Payload
 
