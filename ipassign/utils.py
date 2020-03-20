@@ -65,8 +65,8 @@ def validate_mac_addr(val):
             return False, f'Mac addresses have length 6, not {len(val)}'
         if not all([isinstance(e, int) and e < 256 for e in val]):
             return False, 'Only ints < 256 allowed in list'
-        return True, val
+        return True, tuple(val)
     if isinstance(val, str) and re.match(mac_addr_expr, val.lower()):
         sep = ':' if ':' in val else '-'
-        return True, [int(b, base=16) for b in val.split(sep)]
+        return True, tuple([int(b, base=16) for b in val.split(sep)])
     return False, f'{val} is not a valid mac address'

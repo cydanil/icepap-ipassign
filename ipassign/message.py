@@ -92,7 +92,8 @@ class Message:
 
     @property
     def dest(self):
-        return self._dest
+        if self._dest is not None:
+            return ':'.join([hex(b)[2:].zfill(2) for b in self._dest])
 
     @dest.setter
     def dest(self, val):
@@ -125,7 +126,7 @@ class Message:
         ret += struct.pack('H', self.command.value)
         ret += struct.pack('H', len(self.payload))
         if self.target_id != 0:
-            ret += struct.pack('BBBBBB', *self.dest)
+            ret += struct.pack('BBBBBB', *self._dest)
 
         if isinstance(self.payload, bytes):
             ret += self.payload
@@ -193,9 +194,7 @@ class Message:
 
     def __str__(self):
         source = ':'.join([hex(b)[2:].zfill(2) for b in self.source])
-        dest = 'BROADCAST'
-        if self.dest is not None:
-            dest = ':'.join([hex(b)[2:].zfill(2) for b in self.dest])
+        dest = self.dest if self.dest is not None else 'BROADCAST'
         payload = self.payload if self.payload else '[payload] = none'
         ret = f"""[header]
     [source]      = {source}

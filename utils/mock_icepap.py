@@ -1,8 +1,8 @@
-import time
 import socket
 import struct
 
 from ipassign import commands, Message, Payload
+from ipassign.utils import validate_mac_addr
 
 cosmos = "172.24.155.154"
 
@@ -29,12 +29,13 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 sock.bind(server_address)
 
 # Create a mock configuration to send ipassign
-p = Payload(target_id=[0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE],
-            ip=[8, 8, 8, 8],
+_, mac_addr = validate_mac_addr("00:0B:AD:C0:FF:EE")
+p = Payload(target_id=mac_addr,
+            ip=[172, 24, 155, 8],
             bc=[172, 24, 155, 25],
             nm=[255, 255, 255, 0],
             gw=[172, 24, 155, 99],
-            mac=[0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE],
+            mac=mac_addr,
             hostname="hi_mom",
             reboot=False, dynamic=False, flash=False)
 config_message = Message(source="00:0B:AD:C0:FF:EE",
@@ -42,7 +43,8 @@ config_message = Message(source="00:0B:AD:C0:FF:EE",
                          packet_number=0,
                          command=commands.SEND_CONFIG,
                          payload=p,
-                         destination="00:22:19:06:bf:58")
+                         destination="00:00:00:00:00:00")
+
 while True:
     print('\nwaiting to receive message')
     data, address = sock.recvfrom(1024)
@@ -50,5 +52,15 @@ while True:
     print(m)
 
     if m.command is commands.REQUEST_CONFIG:
-        time.sleep(1)  # Sleep to check for side-effects
+        config_message.dest = m.source
         sock.sendto(config_message.to_bytes(), (multicast_group, 12345))
+    if m.dest == mac_addr:
+        print('That was for us')
+        config_message.payload = m.payload
+        if not m.payload.reboot:
+            pass  # TODO: Send ack message
+
+        # Clear flags
+        config_message.payload.reboot = False
+        config_message.payload.flash = False
+        config_message.payload.dynamic = False

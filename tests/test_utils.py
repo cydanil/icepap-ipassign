@@ -36,7 +36,7 @@ def test_validate_ip_addr():
 
 
 def test_validate_mac_addr():
-    expected = [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x00]
+    expected = (0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x00)
 
     ok, val = validate_mac_addr('DE:AD:BE:EF:00:00')
     assert ok

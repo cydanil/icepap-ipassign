@@ -208,3 +208,30 @@ class Payload:
 
     def __len__(self):
         return len(self.to_bytes())
+
+
+class Acknowledgement:
+    """An acknowledgment payload has the following structure:
+
+        [packet number] # 2 bytes, uint16
+        [error code]    # 2 bytes, uint16
+
+    [packet number] is the packet number refering to the acknowledge packet.
+                    If a configuration packet was sent with packet number 5, it
+                    is then possible to check that the settings match the ones
+                    in the packet of that packet.
+    [error code] is a status code of having applied the received settings.
+    """
+    def __init__(self, packno=0, code=0):
+        """"""
+
+    def __repr__(self):
+        return f'Acknowledgement.from_bytes("{self.to_bytes()}")'
+
+    def __eq__(self, other):
+        if isinstance(other, Payload):
+            other = other.to_bytes()
+        return self.to_bytes() == other
+
+    def __len__(self):
+        return len(self.to_bytes())
