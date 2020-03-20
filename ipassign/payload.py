@@ -1,51 +1,43 @@
-"""
-An IcePap IPAssign payload is either a device's current network configuration,
-or one it should apply.
-The payload has the following structure:
-
-    [icepap id]    # 6 bytes, 6 x uint8
-    [ip address]   # 4 bytes, uint32, little endian
-    [broadcast]    # ditto
-    [netmask]      # ditto
-    [gateway]      # ditto
-    [mac address]  # 6 bytes, 6 x uint8
-    [flags]        # 2 bytes, uint32
-    [hostname]     # 24 bytes, ascii string
-
-[icepap id] is the mac address of the device providing or applying the config.
-[ip address] is this configuration's address.
-[broadcast] is this configuration's broadcast address.
-[netmask] is this configuration's netmask.
-[gateway] is this configuration's gateway address.
-[mac address] is this configuration's mac address.
-[flags] are the actions the device should do upon applying a new configuration.
-[hostname] is this configuration's hostname.
-
-The device can be asked to perform one of three actions upon applying a new
-configuration. These are set in the [flags] field and are:
-    reboot (first bit set);
-    dynamically apply the changes (second bit set);
-    write them to flash (third bit set).
-
-
-An IcePap acknowledgment payload has the following structure:
-
-    [packet number] # 2 bytes, uint16
-    [error code]    # 2 bytes, uint16
-
-[packet number] is the packet number refering to the acknowledge packet.
-                If a configuration packet was sent with packet number 5, then
-                it is then possible to check that the settings match the ones
-                in the packet of that packet.
-[error code] is a status code of having applied the received settings.
-"""
+import socket
 import struct
+
+from .utils import validate_ip_addr, validate_mac_addr
 
 
 class Payload:
+    """An IcePap IPAssign payload is either a device's current network
+    configuration, or one it should apply.
+    The payload has the following structure:
 
-    def __init__(self, target_id, ip, bc, nm, gw, mac, reboot,
-                 dynamic, flash, hostname):
+        [icepap id]    # 6 bytes, 6 x uint8
+        [ip address]   # 4 bytes, uint32, little endian
+        [broadcast]    # ditto
+        [netmask]      # ditto
+        [gateway]      # ditto
+        [mac address]  # 6 bytes, 6 x uint8
+        [flags]        # 2 bytes, uint32
+        [hostname]     # 24 bytes, ascii string
+
+    [icepap id] is the mac address of the device providing or applying the
+                config.
+    [ip address] is this configuration's address.
+    [broadcast] is this configuration's broadcast address.
+    [netmask] is this configuration's netmask.
+    [gateway] is this configuration's gateway address.
+    [mac address] is this configuration's mac address.
+    [flags] are the actions the device should do upon applying a new
+            configuration.
+    [hostname] is this configuration's hostname.
+
+    The device can be asked to perform one of three actions upon applying a new
+    configuration. These are set in the [flags] field and are:
+        reboot (first bit set);
+        dynamically apply the changes (second bit set);
+        write them to flash (third bit set).
+    """
+
+    def __init__(self, target_id, ip, bc, nm, gw, mac, hostname,
+                 reboot=False, dynamic=False, flash=False):
         self.target_id = target_id
         self.ip = ip
         self.bc = bc
@@ -56,6 +48,72 @@ class Payload:
         self.dynamic = dynamic
         self.flash = flash
         self.hostname = hostname
+
+    @property
+    def target_id(self):
+        return ":".join([hex(b)[2:].zfill(2) for b in self._target_id])
+
+    @target_id.setter
+    def target_id(self, val):
+        ok, val = validate_mac_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._target_id = val
+
+    @property
+    def mac(self):
+        return ":".join([hex(b)[2:].zfill(2) for b in self._mac])
+
+    @mac.setter
+    def mac(self, val):
+        ok, val = validate_mac_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._mac = val
+
+    @property
+    def ip(self):
+        return socket.inet_ntoa(self._ip)
+
+    @ip.setter
+    def ip(self, val):
+        ok, val = validate_ip_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._ip = val
+
+    @property
+    def bc(self):
+        return socket.inet_ntoa(self._bc)
+
+    @bc.setter
+    def bc(self, val):
+        ok, val = validate_ip_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._bc = val
+
+    @property
+    def nm(self):
+        return socket.inet_ntoa(self._nm)
+
+    @nm.setter
+    def nm(self, val):
+        ok, val = validate_ip_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._nm = val
+
+    @property
+    def gw(self):
+        return socket.inet_ntoa(self._gw)
+
+    @gw.setter
+    def gw(self, val):
+        ok, val = validate_ip_addr(val)
+        if not ok:
+            raise ValueError(val)
+        self._gw = val
 
     @property
     def hostname(self):
@@ -96,15 +154,15 @@ class Payload:
         hostname = barray[32:].decode().strip('\x00')
 
         return Payload(target_id, ip, bc, nm, gw, mac,
-                       reboot, dynamic, flash, hostname)
+                       hostname, reboot, dynamic, flash)
 
     def to_bytes(self):
-        ret = struct.pack('BBBBBB', *self.target_id)
-        ret += struct.pack('BBBB', *self.ip)
-        ret += struct.pack('BBBB', *self.bc)
-        ret += struct.pack('BBBB', *self.nm)
-        ret += struct.pack('BBBB', *self.gw)
-        ret += struct.pack('BBBBBB', *self.mac)
+        ret = struct.pack('BBBBBB', *self._target_id)
+        ret += self._ip
+        ret += self._bc
+        ret += self._nm
+        ret += self._gw
+        ret += struct.pack('BBBBBB', *self._mac)
 
         flags = 0
         if self.reboot:
@@ -121,8 +179,6 @@ class Payload:
         return ret
 
     def __str__(self):
-        target = ':'.join([hex(b)[2:].zfill(2) for b in self.target_id])
-        mac = ':'.join([hex(b)[2:].zfill(2) for b in self.mac])
         flags = ''
         if self.reboot:
             flags += ' reboot'
@@ -131,12 +187,12 @@ class Payload:
         if self.flash:
             flags += ' flash'
         ret = f"""[payload]
-    [target id]   = {target}
-    [ip address]  = {'.'.join([str(b) for b in self.ip])}
-    [broadcast]   = {'.'.join([str(b) for b in self.bc])}
-    [netmask]     = {'.'.join([str(b) for b in self.nm])}
-    [gateway]     = {'.'.join([str(b) for b in self.gw])}
-    [mac address] = {mac}
+    [target id]   = {self.target_id}
+    [ip address]  = {self.ip}
+    [broadcast]   = {self.bc}
+    [netmask]     = {self.nm}
+    [gateway]     = {self.gw}
+    [mac address] = {self.mac}
 
     [flags]       ={flags}
     [hostname]    = {self.hostname}"""

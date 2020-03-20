@@ -1,50 +1,7 @@
-"""
-An IcePap packet has the following structure:
-
-    [header]      # 14 bytes
-    [destination] # 6 bytes, 6 x uint8
-    [payload]     # variable length, 0 to 1024 bytes
-    [checksum]    # 4 bytes, uint32, little endian
-
-[destination] is the mac address of the target device. When broadcasting,
-              this address is set to a single byte with value 0x00.
-[payload] is the data sent to the target device.
-[checksum] the crc32 of [header][destination][payload], encoded in little
-           endian, then appended to the packet.
-
-[header] has the following structure:
-
-    [source]        # 6 bytes, 6 x uint8
-    [target id]     # 2 byte, uint16
-    [packet number] # 2 bytes, uint16
-    [command]       # 2 bytes, uint16
-    [payload size]  # 2 bytes, uint16
-
-[source] source is the mac address of the device emitting the packet
-[target id] is an IcePaP network id.
-[packet number] is the packet count sent by this device.
-[command] is one of the predefined commands, eg. set hostname, see
-          ipassign.commands
-[payload size] describes the quantity of bytes in the payload to read.
-
-Here is a broadcast message, represented in hex:
-
-    0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
-    0x00                            # target id (broadcast)
-    0x00 0x01                       # packet number
-    0x00 0x02                       # command (request for parameters)
-    0x00 0x00                       # payload length
-    0x00                            # destination mac, truncated to 1 byte.
-    0x31 0x8F 0x64 0x48             # checksum
-
-Note, had data been sent, it would have been located between the destination
-mac and the checksum.
-This is therefore the smallest message that can be sent.
-"""
 import struct
 import zlib
 
-from .commands import commands
+from .utils import commands
 from .payload import Payload
 
 MIN_PACKET_LENGTH = 17
@@ -58,6 +15,48 @@ def get_hw_addr(iface='eth0'):
 
 
 class Message:
+    """An IcePap packet has the following structure:
+
+        [header]       # 14 bytes
+        [destination]  # 6 bytes, 6 x uint8
+        [payload]      # variable length, 0 to 1024 bytes
+        [checksum]     # 4 bytes, uint32, little endian
+
+    [destination] is the mac address of the target device. When broadcasting,
+                  this address is set to a single byte with value 0x00.
+    [payload] is the data sent to the target device.
+    [checksum] the crc32 of [header][destination][payload], encoded in little
+               endian, then appended to the packet.
+
+    [header] has the following structure:
+
+        [source]         # 6 bytes, 6 x uint8
+        [target id]      # 2 byte, uint16
+        [packet number]  # 2 bytes, uint16
+        [command]        # 2 bytes, uint16
+        [payload size]   # 2 bytes, uint16
+
+    [source] source is the mac address of the device emitting the packet
+    [target id] is an IcePaP network id.
+    [packet number] is the packet count sent by this device.
+    [command] is one of the predefined commands, eg. set hostname, see
+              ipassign.commands
+    [payload size] describes the quantity of bytes in the payload to read.
+
+    Here is a broadcast message, represented in hex:
+
+        0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
+        0x00                            # target id (broadcast)
+        0x00 0x01                       # packet number
+        0x00 0x02                       # command (request for parameters)
+        0x00 0x00                       # payload length
+        0x00                            # destination mac, truncated to 1 byte.
+        0x31 0x8F 0x64 0x48             # checksum
+
+    Note, had data been sent, it would have been located between the
+    destination mac and the checksum.
+    This is therefore the smallest message that can be sent.
+    """
     packno = 0
 
     def __init__(self, source=None, target_id=0, packet_number=None,
