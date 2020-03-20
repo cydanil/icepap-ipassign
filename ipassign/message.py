@@ -1,7 +1,7 @@
 import struct
 import zlib
 
-from .utils import commands
+from .utils import commands, validate_mac_addr
 from .payload import Payload
 
 MIN_PACKET_LENGTH = 17
@@ -82,9 +82,10 @@ class Message:
 
     @source.setter
     def source(self, val):
+        ok = True
         if isinstance(val, str):
-            val = [int(b, base=16) for b in val.split(':')]
-        if not hasattr(val, '__iter__') or len(val) != 6:
+            ok, val = validate_mac_addr(val)
+        if not ok or not hasattr(val, '__iter__') or len(val) != 6:
             print('source should be 6 uint8, setting hw mac address')
             val = get_hw_addr()
         self._source = val
@@ -95,10 +96,10 @@ class Message:
 
     @dest.setter
     def dest(self, val):
-        if isinstance(val, str):
-            val = [int(b, base=16) for b in val.split(':')]
-        if not hasattr(val, '__iter__') or len(val) != 6:
-            val = None
+        if val is not None:
+            ok, val = validate_mac_addr(val)
+            if not ok:
+                raise ValueError(val)
         self._dest = val
 
     @property
@@ -172,7 +173,7 @@ class Message:
         payload_len = packet[12:14]
         payload_len, = struct.unpack('H', payload_len)
 
-        dest = [0x00]
+        dest = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
         if target_id != 0:
             dest = packet[14:20]
             dest = struct.unpack('BBBBBB', dest)
