@@ -3,9 +3,7 @@
 Remotely configure icepap network settings.
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
-Its aim is to provide an easy way to set-up network settings over network, without the need for a complete DaNCE suite.
-
-It does so using UDP broadcast on port `12345`.
+Its aim is to provide an easy way to set-up network settings over UDP multicast, without the need for a complete DaNCE suite.
 
 ## Installing
 
@@ -13,6 +11,30 @@ This package requires Python 3.6+.
 Clone and download this repository, and install it with `pip`:
 
     pip install .
+
+## Networking
+
+ipassign uses UDP multicast on `225.0.0.37` port `12345`.  
+A typical exchange of information has the following format:
+
+    [ipassign] who's there? discovery packet
+    [icepap 1] me, my mac address is 00:... and my configuration is ...
+    [icepap 2] me, my mac address is 01:... and my configuration is ...
+    [ipassign] device with mac 01:... , please apply the following configuration: ...
+               and reboot/apply now dynamically/write to flash.
+    [icepap 2] okay, here's an ack message, with my status code following your request.
+    [ipassign] who's there? discovery packet
+
+For demonstration purposes, a simple listener is available in `utils/listener.py` and can be invoked so:
+
+```bash
+$ ipassign-listener
+
+Waiting for messages...
+```
+
+Messages seen in the broadcast will then be displayed.
+
 
 ## Packet Format
 
@@ -43,7 +65,7 @@ An IPAssign packet has the following structure:
                 `ipassign.commands`
   - `[payload size]` describes the quantity of bytes in the payload to read.
 
-Here is the anatomy of a broadcast message:
+Here is the anatomy of a discovery message:
 
     0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
     0x00                            # target id (broadcast)
@@ -57,7 +79,7 @@ Note, had data been sent, it would have been located between the destination
 mac and the checksum.
 This is therefore the smallest message that can be sent.
 
-An other example, of a reply to this broadcast hello, is:
+An other example, of a reply to this discovery message, is:
 
 ```python
 from ipassign import Message
@@ -117,7 +139,7 @@ These are set in the `[flags]` field and are:
 - dynamically apply the changes (second bit set);
 - write them to flash (third bit set).
 
-Here is configuration payload:
+Here is a configuration payload:
 
     0x00 0x0C 0xC6 0x69 0x13 0x2D                 # icepap id, a mac address
     0xAC 0x18 0x9B 0xDE 0xAC                      # IP address, 172.24.155.222
