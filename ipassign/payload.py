@@ -1,7 +1,7 @@
 import socket
 import struct
 
-from .utils import validate_ip_addr, validate_mac_addr
+from .utils import acknowledgements, validate_ip_addr, validate_mac_addr
 
 
 class Payload:
@@ -223,13 +223,25 @@ class Acknowledgement:
     [error code] is a status code of having applied the received settings.
     """
     def __init__(self, packno=0, code=0):
-        """"""
+        self.packet_number = packno
+        if not isinstance(code, acknowledgements):
+            code = acknowledgements(code)
+        self.code = code
+
+    def to_bytes(self):
+        return struct.pack('HH', self.packet_number, self.code.value)
+
+    def __str__(self):
+        return f"""[acknowledgement]
+    [to packet] = {self.packet_number}
+    [code]      = {self.code.name} [{self.code.value}]
+"""
 
     def __repr__(self):
         return f'Acknowledgement.from_bytes("{self.to_bytes()}")'
 
     def __eq__(self, other):
-        if isinstance(other, Payload):
+        if isinstance(other, Acknowledgement):
             other = other.to_bytes()
         return self.to_bytes() == other
 

@@ -27,6 +27,20 @@ class commands(Enum):
     UPDATE_CONFIG_ACK = 0x0010
 
 
+class acknowledgements(Enum):
+    OK = 0x0000
+
+    ERR_SIZE_PACK = 0x0140
+    ERR_OPEN_SOCKET = 0x0141
+    ERR_CLEAR_FLAG = 0x0142
+    ERR_BAD_GW = 0x0143
+    ERR_SET_IP_BC_NM = 0x0145
+    ERR_SET_GW = 0x0146
+    ERR_SET_FLAG = 0x0147
+    ERR_SET_MCAST = 0x0148
+    ERR_SET_HOSTNAME = 0x0149
+
+
 def validate_ip_addr(val):
     if isinstance(val, bytes):
         try:

@@ -6,7 +6,7 @@ from ipassign import message
 from test_data import PACKET, PAYLOAD, REPLY
 
 
-def test_message_object_initialisation(monkeypatch):
+def test_message_object_instantiation(monkeypatch):
     def mock():
         return [0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE]
 
