@@ -104,8 +104,10 @@ class Message:
         if isinstance(val, (Acknowledgement, Configuration)):
             pass
         elif isinstance(val, bytes):
-            if len(val) != 0:
+            if len(val) == 56:
                 val = Configuration.from_bytes(val)
+            if len(val) == 4:
+                val = Acknowledgement.from_bytes(val)
         else:
             raise TypeError(f'Payload should be bytes, not {type(val)}')
         self._payload = val

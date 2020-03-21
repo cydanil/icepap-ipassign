@@ -1,7 +1,7 @@
 import pytest
 
-from ipassign import commands, Message, Configuration
-from test_data import PACKET, PAYLOAD, REPLY
+from ipassign import Acknowledgement, commands, Message, Configuration
+from test_data import ACK, ACK_MSG, PACKET, PAYLOAD, REPLY
 
 
 def test_message_object_instantiation():
@@ -96,7 +96,7 @@ def test_parse_reply():
     assert str(m) == expected
 
 
-def test_message_payload_integration():
+def test_message_config_payload():
     p = Configuration.from_bytes(PAYLOAD)
     p.reboot = True
     source = "00:0c:c6:69:13:2d"
@@ -141,3 +141,38 @@ def test_message_payload_integration():
     assert m == mm
     assert mm == mmm
     assert mmm == mmmm
+
+
+def test_message_ack_payload():
+    m = Message.from_bytes(ACK_MSG)
+    print(m)
+    assert isinstance(m, Message)
+
+    expected = """[header]
+    [source]      = 00:0c:c6:69:13:2d
+    [target id]   = 1
+    [packet no]   = 1
+    [command]     = UPDATE_CONFIG_ACK [0x10]
+    [payload len] = 4
+[destination] = 00:22:19:06:bf:58
+[acknowledgement]
+    [to packet] = 2
+    [code]      = OK [0]
+[checksum] = 0x12ec8a45"""
+
+    assert str(m) == expected
+    assert m.to_bytes() == ACK_MSG
+
+    p = Acknowledgement.from_bytes(ACK)
+    source = "00:0c:c6:69:13:2d"
+    target_id = 1
+    destination = "00:22:19:06:bf:58"
+    command = commands.UPDATE_CONFIG_ACK
+
+    mm = Message(source=source,
+                 target_id=target_id,
+                 command=command,
+                 destination=destination,
+                 payload=p)
+
+    assert m == mm
