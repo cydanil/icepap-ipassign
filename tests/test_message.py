@@ -1,6 +1,6 @@
 import pytest
 
-from ipassign import commands, Message, Payload
+from ipassign import commands, Message, Configuration
 from test_data import PACKET, PAYLOAD, REPLY
 
 
@@ -81,7 +81,7 @@ def test_parse_reply():
     [command]     = SEND_CONFIG [0x3]
     [payload len] = 56
 [destination] = 00:22:19:06:bf:58
-[payload]
+[configuration]
     [target id]   = 00:0c:c6:69:13:2d
     [ip address]  = 172.24.155.222
     [broadcast]   = 172.24.155.255
@@ -97,7 +97,7 @@ def test_parse_reply():
 
 
 def test_message_payload_integration():
-    p = Payload.from_bytes(PAYLOAD)
+    p = Configuration.from_bytes(PAYLOAD)
     p.reboot = True
     source = "00:0c:c6:69:13:2d"
     target_id = 5

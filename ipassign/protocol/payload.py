@@ -5,9 +5,9 @@ from .enums import acknowledgements
 from ..utils import validate_ip_addr, validate_mac_addr
 
 
-class Payload:
-    """An IcePap IPAssign payload is either a device's current network
-    configuration, or one it should apply.
+class Configuration:
+    """An IcePap IPAssign Configuration payload is either a device's current
+    network configuration, or one it should apply.
     The payload has the following structure:
 
         [icepap id]    # 6 bytes, 6 x uint8
@@ -154,8 +154,8 @@ class Payload:
 
         hostname = barray[32:].decode().strip('\x00')
 
-        return Payload(target_id, ip, bc, nm, gw, mac,
-                       hostname, reboot, dynamic, flash)
+        return Configuration(target_id, ip, bc, nm, gw, mac,
+                             hostname, reboot, dynamic, flash)
 
     def to_bytes(self):
         ret = struct.pack('BBBBBB', *self._target_id)
@@ -187,7 +187,7 @@ class Payload:
             flags += ' dynamic'
         if self.flash:
             flags += ' flash'
-        ret = f"""[payload]
+        ret = f"""[configuration]
     [target id]   = {self.target_id}
     [ip address]  = {self.ip}
     [broadcast]   = {self.bc}
@@ -203,7 +203,7 @@ class Payload:
         return f'Payload.from_bytes("{self.to_bytes()}")'
 
     def __eq__(self, other):
-        if isinstance(other, Payload):
+        if isinstance(other, Configuration):
             other = other.to_bytes()
         return self.to_bytes() == other
 

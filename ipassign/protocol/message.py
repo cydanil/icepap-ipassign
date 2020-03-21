@@ -3,7 +3,7 @@ import zlib
 
 from .enums import commands
 from ..utils import validate_mac_addr
-from .payload import Payload
+from .payload import Acknowledgement, Configuration
 
 MIN_PACKET_LENGTH = 17
 MAX_PACKET_LENGTH = 1048
@@ -101,11 +101,11 @@ class Message:
 
     @payload.setter
     def payload(self, val):
-        if isinstance(val, Payload):
+        if isinstance(val, (Acknowledgement, Configuration)):
             pass
         elif isinstance(val, bytes):
             if len(val) != 0:
-                val = Payload.from_bytes(val)
+                val = Configuration.from_bytes(val)
         else:
             raise TypeError(f'Payload should be bytes, not {type(val)}')
         self._payload = val
