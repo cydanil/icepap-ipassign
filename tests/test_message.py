@@ -1,29 +1,23 @@
 import pytest
 
 from ipassign import commands, Message, Payload
-from ipassign import message
-
 from test_data import PACKET, PAYLOAD, REPLY
 
 
-def test_message_object_instantiation(monkeypatch):
-    def mock():
-        return [0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE]
-
-    setattr(message, 'get_hw_addr', mock)
-
+def test_message_object_instantiation():
+    mac = [0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE]
     Message.packno = 0
-    m = Message(command=commands.RESET)
+    m = Message(source=mac, command=commands.RESET)
     assert isinstance(m, Message)
 
-    assert m.source == mock()
+    assert m.source == '00:0b:ad:c0:ff:ee'
     assert m.target_id == 0
     assert m.packet_number == 1
     assert m.command == commands.RESET
     assert m.dest is None
     assert m.payload == b''
 
-    m = Message(command=commands.CHANGE_IP)
+    m = Message(source=mac, command=commands.CHANGE_IP)
     assert m.packet_number == 2
 
     expected = """[header]

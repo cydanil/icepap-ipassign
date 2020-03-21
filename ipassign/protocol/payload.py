@@ -1,7 +1,8 @@
 import socket
 import struct
 
-from .utils import acknowledgements, validate_ip_addr, validate_mac_addr
+from .enums import acknowledgements
+from ..utils import validate_ip_addr, validate_mac_addr
 
 
 class Payload:

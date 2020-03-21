@@ -1,7 +1,7 @@
 
 import pytest
 
-from ipassign.payload import Payload
+from ipassign import Payload
 from test_data import PAYLOAD
 
 

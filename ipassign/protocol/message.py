@@ -1,17 +1,12 @@
 import struct
 import zlib
 
-from .utils import commands, validate_mac_addr
+from .enums import commands
+from ..utils import validate_mac_addr
 from .payload import Payload
 
 MIN_PACKET_LENGTH = 17
 MAX_PACKET_LENGTH = 1048
-
-
-def get_hw_addr(iface='eth0'):
-    with open(f'/sys/class/net/{iface}/address', 'r') as iface:
-        mac = iface.readline()
-        return [int(b, base=16) for b in mac.split(':')]
 
 
 class Message:
@@ -78,16 +73,13 @@ class Message:
 
     @property
     def source(self):
-        return self._source
+        return ':'.join([hex(b)[2:].zfill(2) for b in self._source])
 
     @source.setter
     def source(self, val):
-        ok = True
-        if isinstance(val, str):
-            ok, val = validate_mac_addr(val)
-        if not ok or not hasattr(val, '__iter__') or len(val) != 6:
-            print('source should be 6 uint8, setting hw mac address')
-            val = get_hw_addr()
+        ok, val = validate_mac_addr(val)
+        if not ok:
+            raise ValueError(val)
         self._source = val
 
     @property
@@ -120,7 +112,7 @@ class Message:
 
     @property
     def __bytes(self):
-        ret = struct.pack('BBBBBB', *self.source)
+        ret = struct.pack('BBBBBB', *self._source)
         ret += struct.pack('H', self.target_id)
         ret += struct.pack('H', self.packet_number)
         ret += struct.pack('H', self.command.value)
@@ -193,11 +185,10 @@ class Message:
         return self.to_bytes() == other
 
     def __str__(self):
-        source = ':'.join([hex(b)[2:].zfill(2) for b in self.source])
         dest = self.dest if self.dest is not None else 'BROADCAST'
         payload = self.payload if self.payload else '[payload] = none'
         ret = f"""[header]
-    [source]      = {source}
+    [source]      = {self.source}
     [target id]   = {self.target_id}
     [packet no]   = {self.packet_number}
     [command]     = {self.command.name} [{hex(self.command.value)}]
