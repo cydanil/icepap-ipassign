@@ -164,15 +164,11 @@ def test_message_ack_payload():
     assert m.to_bytes() == ACK_MSG
 
     p = Acknowledgement.from_bytes(ACK)
-    source = "00:0c:c6:69:13:2d"
-    target_id = 1
-    destination = "00:22:19:06:bf:58"
-    command = commands.UPDATE_CONFIG_ACK
-
-    mm = Message(source=source,
-                 target_id=target_id,
-                 command=command,
-                 destination=destination,
+    mm = Message(source="00:0c:c6:69:13:2d",
+                 target_id=1,
+                 packet_number=1,
+                 command=commands.UPDATE_CONFIG_ACK,
+                 destination="00:22:19:06:bf:58",
                  payload=p)
-
+    print(mm)
     assert m == mm
