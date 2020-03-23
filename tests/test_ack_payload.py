@@ -12,3 +12,11 @@ def test_acknowledgement_payload():
     assert ack.code == acknowledgements.OK
 
     assert ack.to_bytes() == ACK
+
+    ack = Acknowledgement(5, acknowledgements.ERR_BAD_GW)
+    assert ack.to_bytes() == b'\x05\x00\x43\x01'
+
+    expected = """[acknowledgement]
+    [to packet] = 5
+    [code]      = ERR_BAD_GW [0x143]"""
+    assert str(ack) == expected
