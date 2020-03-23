@@ -81,16 +81,15 @@ def test_parse_reply():
     [command]     = SEND_CONFIG [0x3]
     [payload len] = 56
 [destination] = 00:22:19:06:bf:58
-[configuration]
-    [target id]   = 00:0c:c6:69:13:2d
-    [ip address]  = 172.24.155.222
-    [broadcast]   = 172.24.155.255
-    [netmask]     = 255.255.255.0
-    [gateway]     = 172.24.155.99
-    [mac address] = 00:0c:c6:69:13:2d
-
-    [flags]       =
-    [hostname]    = iceeu4
+[payload] = [configuration]
+                [target id]   = 00:0c:c6:69:13:2d
+                [ip address]  = 172.24.155.222
+                [broadcast]   = 172.24.155.255
+                [netmask]     = 255.255.255.0
+                [gateway]     = 172.24.155.99
+                [mac address] = 00:0c:c6:69:13:2d
+                [flags]       =
+                [hostname]    = iceeu4
 [checksum] = 0xd2357b3"""
 
     assert str(m) == expected
@@ -135,9 +134,6 @@ def test_message_config_payload():
                    payload=b'')
     mmmm.payload = p
 
-    print(m)
-    print()
-    print(mm)
     assert m == mm
     assert mm == mmm
     assert mmm == mmmm
@@ -145,7 +141,6 @@ def test_message_config_payload():
 
 def test_message_ack_payload():
     m = Message.from_bytes(ACK_MSG)
-    print(m)
     assert isinstance(m, Message)
 
     expected = """[header]
@@ -155,9 +150,9 @@ def test_message_ack_payload():
     [command]     = UPDATE_CONFIG_ACK [0x10]
     [payload len] = 4
 [destination] = 00:22:19:06:bf:58
-[acknowledgement]
-    [to packet] = 2
-    [code]      = OK [0]
+[payload] = [acknowledgement]
+                [to packet] = 2
+                [code]      = OK [0]
 [checksum] = 0x12ec8a45"""
 
     assert str(m) == expected
@@ -170,7 +165,6 @@ def test_message_ack_payload():
                  command=commands.UPDATE_CONFIG_ACK,
                  destination="00:22:19:06:bf:58",
                  payload=p)
-    print(mm)
     assert m == mm
 
 

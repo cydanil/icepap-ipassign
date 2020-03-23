@@ -13,7 +13,6 @@ def test_instantiation():
     [netmask]     = 255.255.255.0
     [gateway]     = 172.24.155.99
     [mac address] = 00:0b:ad:c0:ff:ee
-
     [flags]       =
     [hostname]    = yolo"""
 
@@ -50,7 +49,6 @@ def test_deserialisation():
     [netmask]     = 255.255.255.0
     [gateway]     = 172.24.155.99
     [mac address] = 00:0c:c6:69:13:2d
-
     [flags]       =
     [hostname]    = iceeu4"""
 

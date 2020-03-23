@@ -194,7 +194,6 @@ class Configuration:
     [netmask]     = {self.nm}
     [gateway]     = {self.gw}
     [mac address] = {self.mac}
-
     [flags]       ={flags}
     [hostname]    = {self.hostname}"""
         return ret

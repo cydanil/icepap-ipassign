@@ -192,7 +192,10 @@ class Message:
 
     def __str__(self):
         dest = self.dest if self.dest is not None else 'BROADCAST'
-        payload = self.payload if self.payload else '[payload] = none'
+        payload = 'none'
+        if isinstance(self.payload, (Acknowledgement, Configuration)):
+            payload = '\n            '.join([line for line in
+                                             str(self.payload).split('\n')])
         ret = f"""[header]
     [source]      = {self.source}
     [target id]   = {self.target_id}
@@ -200,7 +203,7 @@ class Message:
     [command]     = {self.command.name} [{hex(self.command.value)}]
     [payload len] = {len(self.payload)}
 [destination] = {dest}
-{payload}
+[payload] = {payload}
 [checksum] = {hex(self.checksum)}"""
         return ret
 
