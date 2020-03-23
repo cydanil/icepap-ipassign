@@ -58,7 +58,7 @@ while True:
 
         if not m.payload.reboot:  # ipassign only sends config. payloads
             ack = Acknowledgement(m.packet_number,
-                                  code=acknowledgements.ERR_BAD_GW)
+                                  code=acknowledgements.OK)
             ack_msg = Message(source=mac,
                               target_id=1,
                               command=commands.UPDATE_CONFIG_ACK,

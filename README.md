@@ -3,7 +3,8 @@
 Remotely configure icepap network settings.
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
-Its aim is to provide an easy way to set-up network settings over UDP multicast, without the need for a complete DaNCE suite.
+Its aim is to provide an easy way to set-up network settings over UDP multicast,
+without the need for a complete DaNCE suite.
 
 ## Installing
 
@@ -12,9 +13,23 @@ Clone and download this repository, and install it with `pip`:
 
     pip install .
 
-## Networking
+## Protocol
+
+### Messaging
 
 ipassign uses UDP multicast on `225.0.0.37` port `12345`.  
+
+There are three types of message: discovery, configurations, and acknowledgements.
+
+Discovery messages are sent by ipassing to list all devices on the network.  
+
+Configurations messages are either devices sending their configurations, or
+ipassing sending a new configuration to a device.  
+
+Acknowledgements are sent by a device upon applying a new configuration.  
+These are not sent if the device was requested to reboot.
+
+
 A typical exchange of information has the following format:
 
     [ipassign] who's there? discovery packet
@@ -33,10 +48,9 @@ $ ipassign-listener
 Waiting for messages...
 ```
 
-Messages seen in the broadcast will then be displayed.
+Messages seen in the multicast group will then be displayed in human readable format.
 
-
-## Packet Format
+### Packet Format
 
 An IPAssign packet has the following structure:
 
@@ -65,52 +79,23 @@ An IPAssign packet has the following structure:
                 `ipassign.commands`
   - `[payload size]` describes the quantity of bytes in the payload to read.
 
+### Discovery Messages
+
 Here is the anatomy of a discovery message:
 
     0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
-    0x00                            # target id (broadcast)
+    0x00                            # target id (broadcast to group)
     0x00 0x01                       # packet number
     0x00 0x02                       # command (request for parameters)
     0x00 0x00                       # payload length
     0x00                            # destination mac, truncated to 1 byte.
     0x31 0x8F 0x64 0x48             # checksum
 
-Note, had data been sent, it would have been located between the destination
-mac and the checksum.
-This is therefore the smallest message that can be sent.
+Incidentally, for its lack of payload, it is the smallest message that can be sent.
 
-An other example, of a reply to this discovery message, is:
+### Configuration Payload
 
-```python
-from ipassign import Message
-pp = b'\x00\x0c\xc6\x69\x13\x2d\x01\x00\x00\x00\x03\x00\x38\x00\x00\x22\x19\x06\xbf\x58\x00\x0c\xc6\x69\x13\x2d\xac\x18\x9b\xde\xac\x18\x9b\xff\xff\xff\xff\x00\xac\x18\x9b\x63\x00\x0c\xc6\x69\x13\x2d\x00\x00\x00\x00\x69\x63\x65\x65\x75\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xb3\x57\x23\x0d'
-
-m = Message.from_bytes(pp)
-
-print(m)
-[header]
-    [source]      = 00:0c:c6:69:13:2d
-    [target id]   = 1
-    [packet no]   = 0
-    [command]     = commands.SEND_PARAMS
-    [payload len] = 56
-[destination] = 00:22:19:06:bf:58
-[payload]
-    [target id]   = 00:0c:c6:69:13:2d
-    [ip address]  = 172.24.155.222
-    [broadcast]   = 172.24.155.255
-    [netmask]     = 255.255.255.0
-    [gateway]     = 172.24.155.99
-    [mac address] = 00:0c:c6:69:13:2d
-
-    [flags]       =
-    [hostname]    = iceeu4
-[checksum] = 0xd2357b3
-```
-
-## Configuration Payload
-
-A payload is either a device's current network configuration, or one it should apply.
+A configuration is either a device's current network configuration, or one it should apply.
 The payload has the following structure:
 
     [icepap id]    # 6 bytes, 6 x uint8
@@ -150,18 +135,48 @@ Here is a configuration payload:
     0x00 0x00                                     # flags, none
     0X74 0X68 0X78 0X63 0X6F 0X72 0X6F 0X6E 0X61  # hostname
 
+An other example, of a reply to this discovery message, is:
+
+This message will be deserialised as follows:
+
+```python
+from ipassign import Message
+msg  = b'\x00\x0c\xc6\x69\x13\x2d\x01\x00\x00\x00\x03\x00\x38\x00\x00\x22\x19\x06\xbf\x58\x00\x0c\xc6\x69\x13\x2d\xac\x18\x9b\xde\xac\x18\x9b\xff\xff\xff\xff\x00\xac\x18\x9b\x63\x00\x0c\xc6\x69\x13\x2d\x00\x00\x00\x00\x69\x63\x65\x65\x75\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xb3\x57\x23\x0d'
+
+m = Message.from_bytes(msg)
+
+print(m)
+[header]
+    [source]      = 00:0c:c6:69:13:2d
+    [target id]   = 1
+    [packet no]   = 0
+    [command]     = commands.SEND_CONFIG
+    [payload len] = 56
+[destination] = 00:22:19:06:bf:58
+[payload] = [configuration]
+                [target id]   = 00:0c:c6:69:13:2d
+                [ip address]  = 172.24.155.222
+                [broadcast]   = 172.24.155.255
+                [netmask]     = 255.255.255.0
+                [gateway]     = 172.24.155.99
+                [mac address] = 00:0c:c6:69:13:2d
+                [flags]       =
+                [hostname]    = iceeu4
+[checksum] = 0xd2357b3
+```
+
+### Acknowledgment Payload
+
 Whilst a device will send an acknowledgement after applying a new configuration,
 if not told to reboot, it is up to the creator of said configuration to
 validate it.
 
-## Acknowledgment Payload
-Upon receiving a new configuration, a device must send an acknowledgement.
 An acknowledgment payload has the following structure:
 
     [packet number] # 2 bytes, uint16
     [error code]    # 2 bytes, uint16
 
-- `[packet number]` is the packet number refering to the acknowledge packet.
+- `[packet number]` is the packet number referring to the acknowledge packet.
                     If a configuration packet was sent with packet number 5,
                     it is then possible to check that the settings match the ones
                     in the packet of that packet.
@@ -190,7 +205,11 @@ Error codes are defined in `ipassign.acknowledgements`.
 
 ## Testing
 
-Testing is done with `pytest`:
+Testing this library done with `pytest`:
 
     pip install .
     pytest -vv
+
+For development, a mock icepap server can be found in `utils/mock_icepap`.
+This mock server behaves like real hardware, and will send the appropriate
+replies.
