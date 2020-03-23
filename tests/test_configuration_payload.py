@@ -2,7 +2,7 @@
 import pytest
 
 from ipassign import Configuration
-from test_data import PAYLOAD
+from test_data import CONFIGURATION
 
 
 def test_instantiation():
@@ -40,7 +40,7 @@ def test_instantiation():
 
 
 def test_deserialisation():
-    p = Configuration.from_bytes(PAYLOAD)
+    p = Configuration.from_bytes(CONFIGURATION)
     assert isinstance(p, Configuration)
 
     expected = """[configuration]
@@ -58,16 +58,16 @@ def test_deserialisation():
 
 
 def test_serialisation():
-    p = Configuration.from_bytes(PAYLOAD)
-    assert p.to_bytes() == PAYLOAD
+    p = Configuration.from_bytes(CONFIGURATION)
+    assert p.to_bytes() == CONFIGURATION
 
     with pytest.raises(ValueError):
         p.hostname = 'attahostnameboytheydontmakethemlikedisnomore'
 
 
 def test_equality():
-    p = Configuration.from_bytes(PAYLOAD)
-    assert p == PAYLOAD
+    p = Configuration.from_bytes(CONFIGURATION)
+    assert p == CONFIGURATION
 
-    pp = Configuration.from_bytes(PAYLOAD)
+    pp = Configuration.from_bytes(CONFIGURATION)
     assert pp == p

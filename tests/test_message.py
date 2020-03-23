@@ -1,7 +1,7 @@
 import pytest
 
 from ipassign import Acknowledgement, commands, Message, Configuration
-from test_data import ACK, ACK_MSG, PACKET, PAYLOAD, REPLY
+from test_data import ACK, ACK_MSG, PACKET, CONFIGURATION, REPLY
 
 
 def test_message_object_instantiation():
@@ -97,7 +97,7 @@ def test_parse_reply():
 
 
 def test_message_config_payload():
-    p = Configuration.from_bytes(PAYLOAD)
+    p = Configuration.from_bytes(CONFIGURATION)
     p.reboot = True
     source = "00:0c:c6:69:13:2d"
     target_id = 5
@@ -115,7 +115,7 @@ def test_message_config_payload():
                  packet_number=1,
                  command=command,
                  destination=destination,
-                 payload=PAYLOAD)
+                 payload=CONFIGURATION)
     mm.payload.reboot = True
 
     mmm = Message(source=source,
@@ -124,7 +124,7 @@ def test_message_config_payload():
                   command=command,
                   destination=destination,
                   payload=b'')
-    mmm.payload = PAYLOAD
+    mmm.payload = CONFIGURATION
     mmm.payload.reboot = True
 
     mmmm = Message(source=source,
@@ -172,3 +172,34 @@ def test_message_ack_payload():
                  payload=p)
     print(mm)
     assert m == mm
+
+
+def test_check_payload_length():
+    Message(source="00:0c:c6:69:13:2d",
+            target_id=1,
+            packet_number=1,
+            command=commands.UPDATE_CONFIG_ACK,
+            destination="00:22:19:06:bf:58",
+            payload=CONFIGURATION)
+
+    Message(source="00:0c:c6:69:13:2d",
+            target_id=1,
+            packet_number=1,
+            command=commands.UPDATE_CONFIG_ACK,
+            destination="00:22:19:06:bf:58",
+            payload=ACK)
+
+    Message(source="00:0c:c6:69:13:2d",
+            target_id=1,
+            packet_number=1,
+            command=commands.UPDATE_CONFIG_ACK,
+            destination="00:22:19:06:bf:58",
+            payload=b'')
+
+    with pytest.raises(ValueError):
+        Message(source="00:0c:c6:69:13:2d",
+                target_id=1,
+                packet_number=1,
+                command=commands.UPDATE_CONFIG_ACK,
+                destination="00:22:19:06:bf:58",
+                payload=b'\x00\xFF')
