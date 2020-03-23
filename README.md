@@ -150,8 +150,12 @@ Here is a configuration payload:
     0x00 0x00                                     # flags, none
     0X74 0X68 0X78 0X63 0X6F 0X72 0X6F 0X6E 0X61  # hostname
 
-## Acknowledgment Payload
+Whilst a device will send an acknowledgement after applying a new configuration,
+if not told to reboot, it is up to the creator of said configuration to
+validate it.
 
+## Acknowledgment Payload
+Upon receiving a new configuration, a device must send an acknowledgement.
 An acknowledgment payload has the following structure:
 
     [packet number] # 2 bytes, uint16
@@ -163,7 +167,26 @@ An acknowledgment payload has the following structure:
                     in the packet of that packet.
 - `[error code]` is a status code of having applied the received settings.
 
-TODO: Add example payload here.
+Here is an acknowledgement payload:
+```python
+from ipassign import acknowledgements, Acknowledgement
+
+payload = Acknowledgement(packno=5,
+                          code=acknowledgements.OK)
+```
+
+This message would have the following hex representation:
+
+    0x05 0x00  # Reply to the configuration received in sender's packet no. 5
+    0x00 0x00  # Ok
+
+This message would be represented as:
+
+    [acknowledgement]
+        [packet number] = 5
+        [code]          = OK [0x0]
+
+Error codes are defined in `ipassign.acknowledgements`.
 
 ## Testing
 
