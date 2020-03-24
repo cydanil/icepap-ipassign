@@ -8,7 +8,7 @@ without the need for a complete DaNCE suite.
 
 ## Installing
 
-This package requires Python 3.6+.  
+This package requires Python 3.7+.  
 Clone and download this repository, and install it with `pip`:
 
     pip install .
@@ -67,17 +67,29 @@ An IPAssign packet has the following structure:
 - `[header]` has the following structure:
 
         [source]        # 6 bytes, 6 x uint8
-        [target id]     # 2 byte, uint16
+        [target count]  # 2 byte, uint16
         [packet number] # 2 bytes, uint16
         [command]       # 2 bytes, uint16
         [payload size]  # 2 bytes, uint16
 
   - `[source]` is the mac address of the device emitting the packet.
-  - `[target id]` is an IcePaP network id.
+  - `[target count]` is set to 0 when broadcasting to the whole group,
+                     or 1 when targeting a specific device.
   - `[packet number]` is the packet count sent by this device.
   - `[command]` is one of the predefined commands, eg. set hostname, see
-                `ipassign.commands`
+                `ipassign.commands` for available commands.
   - `[payload size]` describes the quantity of bytes in the payload to read.
+
+---
+
+`target count` is called so, to maintain consistency with other legacy code.  
+It was originally envisioned that several devices could be targeted by a single
+message, hence its uint16 format.   
+In practice, however, it is effectively used as a boolean: it should be
+understood as `is_not_broadcasting`. 
+
+---
+
 
 ### Discovery Messages
 
@@ -134,8 +146,6 @@ Here is a configuration payload:
     0x00 0x0C 0xC6 0x69 0x13 0x2D                 # reprogrammable mac address
     0x00 0x00                                     # flags, none
     0X74 0X68 0X78 0X63 0X6F 0X72 0X6F 0X6E 0X61  # hostname
-
-An other example, of a reply to this discovery message, is:
 
 This message will be deserialised as follows:
 

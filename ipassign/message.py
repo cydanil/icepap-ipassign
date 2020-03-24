@@ -54,10 +54,9 @@ class Message:
     """
     packno = 0
 
-    def __init__(self, source=None, target_id=0, packet_number=None,
+    def __init__(self, source=None, packet_number=None,
                  command=None, destination=None, payload=b''):
         self.source = source
-        self.target_id = target_id
 
         if packet_number is None:
             packet_number = Message.packno + 1
@@ -68,7 +67,7 @@ class Message:
             raise TypeError('expected a command enum')
         self.command = command
 
-        self.dest = destination
+        self.destination = destination
         self.payload = payload
 
     @property
@@ -83,17 +82,21 @@ class Message:
         self._source = val
 
     @property
-    def dest(self):
+    def destination(self):
         if self._dest is not None:
             return ':'.join([hex(b)[2:].zfill(2) for b in self._dest])
 
-    @dest.setter
-    def dest(self, val):
+    @destination.setter
+    def destination(self, val):
         if val is not None:
             ok, val = validate_mac_addr(val)
             if not ok:
                 raise ValueError(val)
         self._dest = val
+
+    @property
+    def target_count(self):
+        return int(self._dest is not None)
 
     @property
     def payload(self):
@@ -119,11 +122,11 @@ class Message:
     @property
     def __bytes(self):
         ret = struct.pack('BBBBBB', *self._source)
-        ret += struct.pack('H', self.target_id)
+        ret += struct.pack('H', self.target_count)
         ret += struct.pack('H', self.packet_number)
         ret += struct.pack('H', self.command.value)
         ret += struct.pack('H', len(self.payload))
-        if self.target_id != 0:
+        if self.target_count:
             ret += struct.pack('BBBBBB', *self._dest)
 
         if isinstance(self.payload, bytes):
@@ -161,8 +164,8 @@ class Message:
 
         source = packet[:6]
         source = struct.unpack('BBBBBB', source)
-        target_id = packet[6:8]
-        target_id, = struct.unpack('H', target_id)
+        target_count = packet[6:8]
+        target_count, = struct.unpack('H', target_count)
         packet_no = packet[8:10]
         packet_no, = struct.unpack('H', packet_no)
         cmd = packet[10:12]
@@ -172,15 +175,18 @@ class Message:
         payload_len = packet[12:14]
         payload_len, = struct.unpack('H', payload_len)
 
-        dest = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-        if target_id != 0:
+        dest = None
+        if target_count:
             dest = packet[14:20]
             dest = struct.unpack('BBBBBB', dest)
 
         payload = packet[20:]
-        assert len(payload) == payload_len, 'Payload lengths do not match'
+        assert len(payload) == payload_len, ('Payload lengths do not match: '
+                                             f'was told {payload_len} but '
+                                             f'calculated {len(payload)} '
+                                             f'{payload}')
 
-        return Message(source, target_id, packet_no, cmd, dest, payload)
+        return Message(source, packet_no, cmd, dest, payload)
 
     def __len__(self):
         return len(self.to_bytes())
@@ -191,17 +197,17 @@ class Message:
         return self.to_bytes() == other
 
     def __str__(self):
-        dest = self.dest if self.dest is not None else 'BROADCAST'
+        dest = 'BROADCAST' if self.destination is None else self.destination
         payload = 'none'
         if isinstance(self.payload, (Acknowledgement, Configuration)):
             payload = '\n            '.join([line for line in
                                              str(self.payload).split('\n')])
         ret = f"""[header]
-    [source]      = {self.source}
-    [target id]   = {self.target_id}
-    [packet no]   = {self.packet_number}
-    [command]     = {self.command.name} [{hex(self.command.value)}]
-    [payload len] = {len(self.payload)}
+    [source]       = {self.source}
+    [target count] = {self.target_count}
+    [packet no]    = {self.packet_number}
+    [command]      = {self.command.name} [{hex(self.command.value)}]
+    [payload len]  = {len(self.payload)}
 [destination] = {dest}
 [payload] = {payload}
 [checksum] = {hex(self.checksum)}"""

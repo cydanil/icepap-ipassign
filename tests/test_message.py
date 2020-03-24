@@ -1,7 +1,8 @@
 import pytest
 
 from ipassign import Acknowledgement, commands, Message, Configuration
-from test_data import ACK, ACK_MSG, PACKET, CONFIGURATION, REPLY
+from test_data import (
+    ACK, ACK_MSG, CONFIGURATION, MALFORMATTED_MESSAGE, PACKET, REPLY)
 
 
 def test_message_object_instantiation():
@@ -11,21 +12,21 @@ def test_message_object_instantiation():
     assert isinstance(m, Message)
 
     assert m.source == '00:0b:ad:c0:ff:ee'
-    assert m.target_id == 0
+    assert m.target_count == 0
     assert m.packet_number == 1
     assert m.command == commands.RESET
-    assert m.dest is None
+    assert m.destination is None
     assert m.payload == b''
 
     m = Message(source=mac, command=commands.CHANGE_IP)
     assert m.packet_number == 2
 
     expected = """[header]
-    [source]      = 00:0b:ad:c0:ff:ee
-    [target id]   = 0
-    [packet no]   = 2
-    [command]     = CHANGE_IP [0x6]
-    [payload len] = 0
+    [source]       = 00:0b:ad:c0:ff:ee
+    [target count] = 0
+    [packet no]    = 2
+    [command]      = CHANGE_IP [0x6]
+    [payload len]  = 0
 [destination] = BROADCAST
 [payload] = none
 [checksum] = 0xa922c58"""
@@ -75,11 +76,11 @@ def test_parse_reply():
     assert m == REPLY
 
     expected = """[header]
-    [source]      = 00:0c:c6:69:13:2d
-    [target id]   = 1
-    [packet no]   = 0
-    [command]     = SEND_CONFIG [0x3]
-    [payload len] = 56
+    [source]       = 00:0c:c6:69:13:2d
+    [target count] = 1
+    [packet no]    = 0
+    [command]      = SEND_CONFIG [0x3]
+    [payload len]  = 56
 [destination] = 00:22:19:06:bf:58
 [payload] = [configuration]
                 [target id]   = 00:0c:c6:69:13:2d
@@ -99,18 +100,15 @@ def test_message_config_payload():
     p = Configuration.from_bytes(CONFIGURATION)
     p.reboot = True
     source = "00:0c:c6:69:13:2d"
-    target_id = 5
     destination = "00:de:ad:be:ef:00"
     command = commands.UPDATE_CONFIG
 
     m = Message(source=source,
-                target_id=target_id,
                 command=command,
                 destination=destination,
                 payload=p)
 
     mm = Message(source=source,
-                 target_id=target_id,
                  packet_number=1,
                  command=command,
                  destination=destination,
@@ -118,7 +116,6 @@ def test_message_config_payload():
     mm.payload.reboot = True
 
     mmm = Message(source=source,
-                  target_id=target_id,
                   packet_number=1,
                   command=command,
                   destination=destination,
@@ -127,7 +124,6 @@ def test_message_config_payload():
     mmm.payload.reboot = True
 
     mmmm = Message(source=source,
-                   target_id=target_id,
                    packet_number=1,
                    command=command,
                    destination=destination,
@@ -144,11 +140,11 @@ def test_message_ack_payload():
     assert isinstance(m, Message)
 
     expected = """[header]
-    [source]      = 00:0c:c6:69:13:2d
-    [target id]   = 1
-    [packet no]   = 1
-    [command]     = UPDATE_CONFIG_ACK [0x10]
-    [payload len] = 4
+    [source]       = 00:0c:c6:69:13:2d
+    [target count] = 1
+    [packet no]    = 1
+    [command]      = UPDATE_CONFIG_ACK [0x10]
+    [payload len]  = 4
 [destination] = 00:22:19:06:bf:58
 [payload] = [acknowledgement]
                 [to packet] = 2
@@ -160,7 +156,6 @@ def test_message_ack_payload():
 
     p = Acknowledgement.from_bytes(ACK)
     mm = Message(source="00:0c:c6:69:13:2d",
-                 target_id=1,
                  packet_number=1,
                  command=commands.UPDATE_CONFIG_ACK,
                  destination="00:22:19:06:bf:58",
@@ -170,21 +165,18 @@ def test_message_ack_payload():
 
 def test_check_payload_length():
     Message(source="00:0c:c6:69:13:2d",
-            target_id=1,
             packet_number=1,
             command=commands.UPDATE_CONFIG_ACK,
             destination="00:22:19:06:bf:58",
             payload=CONFIGURATION)
 
     Message(source="00:0c:c6:69:13:2d",
-            target_id=1,
             packet_number=1,
             command=commands.UPDATE_CONFIG_ACK,
             destination="00:22:19:06:bf:58",
             payload=ACK)
 
     Message(source="00:0c:c6:69:13:2d",
-            target_id=1,
             packet_number=1,
             command=commands.UPDATE_CONFIG_ACK,
             destination="00:22:19:06:bf:58",
@@ -192,8 +184,10 @@ def test_check_payload_length():
 
     with pytest.raises(ValueError):
         Message(source="00:0c:c6:69:13:2d",
-                target_id=1,
                 packet_number=1,
                 command=commands.UPDATE_CONFIG_ACK,
                 destination="00:22:19:06:bf:58",
                 payload=b'\x00\xFF')
+
+    with pytest.raises(AssertionError):
+        Message.from_bytes(MALFORMATTED_MESSAGE)
