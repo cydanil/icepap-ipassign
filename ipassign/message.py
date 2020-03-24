@@ -54,10 +54,9 @@ class Message:
     """
     packno = 0
 
-    def __init__(self, source=None, target_id=0, packet_number=None,
+    def __init__(self, source=None, packet_number=None,
                  command=None, destination=None, payload=b''):
         self.source = source
-        self.target_id = target_id
 
         if packet_number is None:
             packet_number = Message.packno + 1
@@ -96,6 +95,10 @@ class Message:
         self._dest = val
 
     @property
+    def target_count(self):
+        return int(self._dest is not None)
+
+    @property
     def payload(self):
         return self._payload
 
@@ -119,11 +122,11 @@ class Message:
     @property
     def __bytes(self):
         ret = struct.pack('BBBBBB', *self._source)
-        ret += struct.pack('H', self.target_id)
+        ret += struct.pack('H', self.target_count)
         ret += struct.pack('H', self.packet_number)
         ret += struct.pack('H', self.command.value)
         ret += struct.pack('H', len(self.payload))
-        if self.target_id != 0:
+        if self.target_count:
             ret += struct.pack('BBBBBB', *self._dest)
 
         if isinstance(self.payload, bytes):
@@ -161,8 +164,8 @@ class Message:
 
         source = packet[:6]
         source = struct.unpack('BBBBBB', source)
-        target_id = packet[6:8]
-        target_id, = struct.unpack('H', target_id)
+        target_count = packet[6:8]
+        target_count, = struct.unpack('H', target_count)
         packet_no = packet[8:10]
         packet_no, = struct.unpack('H', packet_no)
         cmd = packet[10:12]
@@ -172,8 +175,8 @@ class Message:
         payload_len = packet[12:14]
         payload_len, = struct.unpack('H', payload_len)
 
-        dest = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-        if target_id != 0:
+        dest = None
+        if target_count:
             dest = packet[14:20]
             dest = struct.unpack('BBBBBB', dest)
 
@@ -183,7 +186,7 @@ class Message:
                                              f'calculated {len(payload)} '
                                              f'{payload}')
 
-        return Message(source, target_id, packet_no, cmd, dest, payload)
+        return Message(source, packet_no, cmd, dest, payload)
 
     def __len__(self):
         return len(self.to_bytes())
@@ -200,11 +203,11 @@ class Message:
             payload = '\n            '.join([line for line in
                                              str(self.payload).split('\n')])
         ret = f"""[header]
-    [source]      = {self.source}
-    [target id]   = {self.target_id}
-    [packet no]   = {self.packet_number}
-    [command]     = {self.command.name} [{hex(self.command.value)}]
-    [payload len] = {len(self.payload)}
+    [source]       = {self.source}
+    [target count] = {self.target_count}
+    [packet no]    = {self.packet_number}
+    [command]      = {self.command.name} [{hex(self.command.value)}]
+    [payload len]  = {len(self.payload)}
 [destination] = {dest}
 [payload] = {payload}
 [checksum] = {hex(self.checksum)}"""
