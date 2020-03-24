@@ -1,7 +1,8 @@
 import pytest
 
 from ipassign import Acknowledgement, commands, Message, Configuration
-from test_data import ACK, ACK_MSG, PACKET, CONFIGURATION, REPLY
+from test_data import (
+    ACK, ACK_MSG, CONFIGURATION, MALFORMATTED_MESSAGE, PACKET, REPLY)
 
 
 def test_message_object_instantiation():
@@ -14,7 +15,7 @@ def test_message_object_instantiation():
     assert m.target_id == 0
     assert m.packet_number == 1
     assert m.command == commands.RESET
-    assert m.dest is None
+    assert m.destination is None
     assert m.payload == b''
 
     m = Message(source=mac, command=commands.CHANGE_IP)
@@ -197,3 +198,6 @@ def test_check_payload_length():
                 command=commands.UPDATE_CONFIG_ACK,
                 destination="00:22:19:06:bf:58",
                 payload=b'\x00\xFF')
+
+    with pytest.raises(AssertionError):
+        Message.from_bytes(MALFORMATTED_MESSAGE)

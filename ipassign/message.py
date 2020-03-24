@@ -68,7 +68,7 @@ class Message:
             raise TypeError('expected a command enum')
         self.command = command
 
-        self.dest = destination
+        self.destination = destination
         self.payload = payload
 
     @property
@@ -83,12 +83,12 @@ class Message:
         self._source = val
 
     @property
-    def dest(self):
+    def destination(self):
         if self._dest is not None:
             return ':'.join([hex(b)[2:].zfill(2) for b in self._dest])
 
-    @dest.setter
-    def dest(self, val):
+    @destination.setter
+    def destination(self, val):
         if val is not None:
             ok, val = validate_mac_addr(val)
             if not ok:
@@ -178,7 +178,10 @@ class Message:
             dest = struct.unpack('BBBBBB', dest)
 
         payload = packet[20:]
-        assert len(payload) == payload_len, 'Payload lengths do not match'
+        assert len(payload) == payload_len, ('Payload lengths do not match: '
+                                             f'was told {payload_len} but '
+                                             f'calculated {len(payload)} '
+                                             f'{payload}')
 
         return Message(source, target_id, packet_no, cmd, dest, payload)
 
@@ -191,7 +194,7 @@ class Message:
         return self.to_bytes() == other
 
     def __str__(self):
-        dest = self.dest if self.dest is not None else 'BROADCAST'
+        dest = 'BROADCAST' if self.destination is None else self.destination
         payload = 'none'
         if isinstance(self.payload, (Acknowledgement, Configuration)):
             payload = '\n            '.join([line for line in
