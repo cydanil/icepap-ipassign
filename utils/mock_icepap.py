@@ -1,15 +1,12 @@
 import socket
 import struct
 
-from ipassign import commands, Message, Payload
-from ipassign.utils import validate_mac_addr
+from ipassign import (acknowledgements, Acknowledgement,
+                      commands, Configuration, Message, MULTICAST_ADDR,
+                      MULTICAST_PORT)
 
 cosmos = "172.24.155.154"
-
 ip = cosmos
-
-multicast_group = '225.0.0.37'
-server_address = ('', 12345)
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -20,30 +17,30 @@ sock.setsockopt(socket.IPPROTO_IP,
 
 # Tell the operating system to add the socket to
 # the multicast group on all interfaces.
-group = socket.inet_aton(multicast_group)
+group = socket.inet_aton(MULTICAST_ADDR)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-mreq = socket.inet_aton(multicast_group) + socket.inet_aton(ip)
+mreq = socket.inet_aton(MULTICAST_ADDR) + socket.inet_aton(ip)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 # Bind to the server address
-sock.bind(server_address)
+sock.bind(('', MULTICAST_PORT))
 
 # Create a mock configuration to send ipassign
-_, mac_addr = validate_mac_addr("00:0B:AD:C0:FF:EE")
-p = Payload(target_id=mac_addr,
-            ip=[172, 24, 155, 8],
-            bc=[172, 24, 155, 25],
-            nm=[255, 255, 255, 0],
-            gw=[172, 24, 155, 99],
-            mac=mac_addr,
-            hostname="hi_mom",
-            reboot=False, dynamic=False, flash=False)
-config_message = Message(source="00:0B:AD:C0:FF:EE",
-                         target_id=1,
-                         packet_number=0,
-                         command=commands.SEND_CONFIG,
-                         payload=p,
-                         destination="00:00:00:00:00:00")
+mac = '00:0B:AD:C0:FF:EE'
+config = Configuration(target_id=mac,
+                       ip='172.24.155.105',
+                       bc='172.24.155.25',
+                       nm='255.255.255.0',
+                       gw='172.24.155.99',
+                       mac=mac,
+                       hostname="hi_mom")
+
+message = Message(source=mac,
+                  target_id=1,
+                  packet_number=0,
+                  command=commands.SEND_CONFIG,
+                  payload=config,
+                  destination='00:22:19:06:bf:58')
 
 while True:
     print('\nwaiting to receive message')
@@ -52,15 +49,24 @@ while True:
     print(m)
 
     if m.command is commands.REQUEST_CONFIG:
-        config_message.dest = m.source
-        sock.sendto(config_message.to_bytes(), (multicast_group, 12345))
-    if m.dest == mac_addr:
-        print('That was for us')
-        config_message.payload = m.payload
-        if not m.payload.reboot:
-            pass  # TODO: Send ack message
+        sock.sendto(message.to_bytes(), (MULTICAST_ADDR, MULTICAST_PORT))
+        message.packet_number += 1
 
-        # Clear flags
-        config_message.payload.reboot = False
-        config_message.payload.flash = False
-        config_message.payload.dynamic = False
+    if (m.command is commands.UPDATE_CONFIG and
+       m.dest == "00:0b:ad:c0:ff:ee"):
+        message.payload = m.payload
+
+        if not m.payload.reboot:  # ipassign only sends config. payloads
+            ack = Acknowledgement(m.packet_number,
+                                  code=acknowledgements.OK)
+            ack_msg = Message(source=mac,
+                              target_id=1,
+                              command=commands.UPDATE_CONFIG_ACK,
+                              payload=ack,
+                              destination='00:22:19:06:BF:58')
+            sock.sendto(ack_msg.to_bytes(),
+                        (MULTICAST_ADDR, MULTICAST_PORT))
+
+        message.payload.reboot = False
+        message.payload.dynamic = False
+        message.payload.flash = False
