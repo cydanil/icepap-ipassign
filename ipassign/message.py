@@ -2,7 +2,7 @@ import struct
 import zlib
 
 from .enums import commands
-from ..utils import validate_mac_addr
+from .utils import validate_mac_addr
 from .payload import Acknowledgement, Configuration
 
 MIN_PACKET_LENGTH = 17

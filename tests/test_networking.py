@@ -1,6 +1,6 @@
 import socket
 
-from ipassign.networking import is_known_hostname
+from ipassign import is_known_hostname
 
 
 def test_is_known_hostname():

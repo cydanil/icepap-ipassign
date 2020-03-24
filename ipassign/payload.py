@@ -2,7 +2,7 @@ import socket
 import struct
 
 from .enums import acknowledgements
-from ..utils import validate_ip_addr, validate_mac_addr
+from .utils import validate_ip_addr, validate_mac_addr
 
 
 class Configuration:
