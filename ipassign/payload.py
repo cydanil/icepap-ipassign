@@ -2,7 +2,7 @@ import socket
 import struct
 
 from .enums import acknowledgements
-from ..utils import validate_ip_addr, validate_mac_addr
+from .utils import validate_ip_addr, validate_mac_addr
 
 
 class Configuration:
@@ -239,7 +239,7 @@ class Acknowledgement:
     def __str__(self):
         return f"""[acknowledgement]
     [to packet] = {self.packet_number}
-    [code]      = {self.code.name} [{self.code.value}]"""
+    [code]      = {self.code.name} [{hex(self.code.value)}]"""
 
     def __repr__(self):
         return f'Acknowledgement.from_bytes("{self.to_bytes()}")'

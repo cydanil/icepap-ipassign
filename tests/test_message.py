@@ -152,7 +152,7 @@ def test_message_ack_payload():
 [destination] = 00:22:19:06:bf:58
 [payload] = [acknowledgement]
                 [to packet] = 2
-                [code]      = OK [0]
+                [code]      = OK [0x0]
 [checksum] = 0x12ec8a45"""
 
     assert str(m) == expected

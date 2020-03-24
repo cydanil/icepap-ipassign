@@ -10,6 +10,3 @@ def is_known_hostname(name: str) -> bool:
         return socket.gethostbyname(name)
     except socket.gaierror:
         return False
-
-
-__all__ = [is_known_hostname, MULTICAST_ADDR, MULTICAST_PORT]
