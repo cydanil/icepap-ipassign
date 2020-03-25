@@ -15,6 +15,7 @@ def ipassign():
     main.pbLog.clicked.connect(log.display)
 
     w.show()
+    log.log('Launched')
     sys.exit(app.exec_())
 
 

@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 
 from PyQt5.QtCore import QObject, QRect, Qt
-from PyQt5.QtWidgets import (QCheckBox, QDialog,
+from PyQt5.QtWidgets import (QCheckBox, QDialog, QFileDialog,
                              QGroupBox, QTextEdit, QPushButton)
 
 
@@ -46,6 +46,7 @@ class LogWindow(QObject):
         pbSave.setObjectName('pbSave')
         pbSave.setGeometry(QRect(570, 430, 120, 40))
         pbSave.setText('Save to File')
+        pbSave.clicked.connect(self.save)
 
         cbAppend = QCheckBox(parent)
         cbAppend.setObjectName('cbAppend')
@@ -59,5 +60,21 @@ class LogWindow(QObject):
             self.parent.show()
 
     def log(self, content):
-        header = dt.strftime(dt.now(), "%Y/%m/%d %H:%M:%S> ")
+        header = dt.strftime(dt.now(), '%Y/%m/%d %H:%M:%S> ')
         self.teLog.append(header + content)
+
+    def save(self):
+        filename, _ = QFileDialog.getOpenFileName(
+            self.parent, 'Select File', 'ipassign.log',
+            'log files (*.log);;All files (*)')
+
+        mode = 'a' if self.cbAppend.isChecked() else 'w'
+        if filename:
+            try:
+                with open(filename, mode) as fout:
+                    fout.write(self.teLog.toPlainText())
+                    fout.write('\n')
+                msg = f'Log saved to {filename}'
+            except (OSError, PermissionError):
+                msg = f'Could not save log to {filename}'
+            self.log(msg)
