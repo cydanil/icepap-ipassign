@@ -64,7 +64,7 @@ class LogWindow(QObject):
         self.teLog.append(header + content)
 
     def save(self):
-        filename, _ = QFileDialog.getOpenFileName(
+        filename, _ = QFileDialog.getSaveFileName(
             self.parent, 'Select File', 'ipassign.log',
             'log files (*.log);;All files (*)')
 

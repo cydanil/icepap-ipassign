@@ -13,7 +13,7 @@ setup(
      entry_points={
           "console_scripts": [
               'ipassign-listener = utils.listener:main',
-              'ipassign = gui.launcher:ipassign',
+              'ipassign = gui.main:main',
           ],
      },
 )
