@@ -1,5 +1,6 @@
 import random
 import socket
+import string
 import struct
 import sys
 
@@ -32,14 +33,16 @@ else:
                     _ in range(6)])
 print(f'Working with {mac}')
 
+hostname = ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
+
 # Create a mock configuration to send ipassign
-config = Configuration(target_id=mac,
+config = Configuration(target_id=mac,  # will be overwritten in due time
                        ip='172.24.155.105',
                        bc='172.24.155.25',
                        nm='255.255.255.0',
                        gw='172.24.155.99',
                        mac=mac,
-                       hostname="hi_mom")
+                       hostname=hostname)
 
 message = Message(source=mac,
                   packet_number=0,
