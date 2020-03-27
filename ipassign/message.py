@@ -41,7 +41,7 @@ class Message:
     Here is a broadcast message, represented in hex:
 
         0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
-        0x00                            # target id (broadcast)
+        0x00                            # target count (broadcast)
         0x00 0x01                       # packet number
         0x00 0x02                       # command (request for parameters)
         0x00 0x00                       # payload length

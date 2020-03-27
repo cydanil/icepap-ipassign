@@ -112,7 +112,7 @@ understood as `is_not_broadcasting`.
 Here is the anatomy of a discovery message:
 
     0x78 0x45 0xC4 0xF7 0x8F 0x48   # mac
-    0x00                            # target id (broadcast to group)
+    0x00 0x00                       # target count (broadcast to group)
     0x00 0x01                       # packet number
     0x00 0x02                       # command (request for parameters)
     0x00 0x00                       # payload length
@@ -176,7 +176,7 @@ print(m)
     [source]      = 00:0c:c6:69:13:2d
     [target id]   = 1
     [packet no]   = 0
-    [command]     = commands.SEND_CONFIG
+    [command]     = SEND_CONFIG [0x3]
     [payload len] = 56
 [destination] = 00:22:19:06:bf:58
 [payload] = [configuration]

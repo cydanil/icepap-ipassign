@@ -1,5 +1,8 @@
+import random
 import socket
+import string
 import struct
+import sys
 
 from ipassign import (acknowledgements, Acknowledgement,
                       commands, Configuration, MAX_PACKET_LENGTH,
@@ -22,15 +25,24 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 # Bind to the server address
 sock.bind(('', MULTICAST_PORT))
 
+# Get a mac address for this session
+if len(sys.argv) == 3:
+    mac = sys.argv[-1]
+else:
+    mac = ':'.join([hex(random.randint(1, 255))[2:].zfill(2) for
+                    _ in range(6)])
+print(f'Working with {mac}')
+
+hostname = ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
+
 # Create a mock configuration to send ipassign
-mac = '00:0b:ad:c0:ff:ee'
-config = Configuration(target_id=mac,
+config = Configuration(target_id=mac,  # will be overwritten in due time
                        ip='172.24.155.105',
                        bc='172.24.155.25',
                        nm='255.255.255.0',
                        gw='172.24.155.99',
                        mac=mac,
-                       hostname="hi_mom")
+                       hostname=hostname)
 
 message = Message(source=mac,
                   packet_number=0,
