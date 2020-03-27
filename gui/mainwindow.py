@@ -10,11 +10,6 @@ class MainWindow(QObject):
     This window contains a list of devices found on the network, of which the
     configuration can be modified in the HostnameSettings or NetworkSettings
     windows.
-
-    When launched, the application will send a discovery packet to find
-    devices. This action can be remade by clicking `Refresh`.
-
-    A log of the traffic on the network can be viewed in the Log window.
     """
 
     def __init__(self, parent=None):

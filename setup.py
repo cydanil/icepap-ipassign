@@ -8,12 +8,23 @@ setup(
      description='',
      url='https://github.com/cydanil/icepap-ipassign',
      packages=['ipassign'],
+     install_requires=['PyQt5>=5.12.0'],
      tests_require=['pytest'],
      python_requires='>=3.6',
      entry_points={
           "console_scripts": [
-              'ipassign-listener = utils.listener:main',
               'ipassign = gui.main:main',
+              'ipassign-listener = utils.listener:main',
           ],
      },
+     classifiers=[
+         'Development Status :: 6 - Mature',
+         'Environment :: X11 Applications :: Qt',
+         'Intended Audience :: Developers',
+         'Intended Audience :: Science/Research',
+         'License :: OSI Approved :: BSD License',
+         'Operating System :: POSIX :: Linux',
+         'Operating System :: Microsoft :: Windows',
+         'Topic :: Scientific/Engineering',
+        ],
 )

@@ -11,8 +11,6 @@ class LogWindow(QObject):
 
     This window contains a read-only text field that, when displayed refreshes
     automatically.
-    The `append` checkbox allows to add to a file, instead of overwriting when
-    saving
     """
 
     def __init__(self, parent=None):

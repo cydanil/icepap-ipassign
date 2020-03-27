@@ -8,6 +8,11 @@ from .mainwindow import MainWindow
 
 
 def main():
+    """The application's entry point.
+
+    After creating the Qt application, this will automatically look for
+    device's on the network, and list them within the main window.
+    """
     app = QApplication(sys.argv)
 
     w = QMainWindow()
