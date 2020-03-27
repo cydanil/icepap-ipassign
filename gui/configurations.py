@@ -72,6 +72,7 @@ class HostnameWindow(QObject):
         pbApply.setObjectName('pbApply')
         pbApply.setText('Apply')
         pbApply.setGeometry(QRect(180, 90, 80, 40))
+        pbApply.clicked.connect(self.apply)
 
         pbCancel = QPushButton(parent)
         pbCancel.setObjectName('pbCancel')
@@ -83,6 +84,9 @@ class HostnameWindow(QObject):
         global NETWORK_MODE
         NETWORK_MODE = True
         display_config_window()
+
+    def apply(self):
+        print('kthxbye')
 
 
 class NetworkWindow(QObject):
