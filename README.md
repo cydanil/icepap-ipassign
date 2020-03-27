@@ -13,6 +13,22 @@ Clone and download this repository, and install it with `pip`:
 
     pip install .
 
+## Usage
+
+ipassign is a graphical application.
+Launch it so:
+
+    $ ipassign
+
+In the main window, you will be given a list of discovered devices. Clicking on one
+will show its configuration window.
+
+The most common operation is the setting of the hostname, and a simple window will
+pop up.  
+For further network settings, hit `Advanced`.
+
+The gui is further documented in [gui/gui.md](gui/gui.md)
+
 ## Protocol
 
 ### Messaging
