@@ -2,7 +2,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-from .configurations import display_config_window, init_config_windows
+from .configurations import init_config_windows
 from .logwindow import LogWindow
 from .mainwindow import MainWindow
 
@@ -22,7 +22,6 @@ def main():
     init_config_windows()
 
     main.pbLog.clicked.connect(log.display)
-    main.pbProperties.clicked.connect(display_config_window)
 
     w.show()
     log.log('Launched')

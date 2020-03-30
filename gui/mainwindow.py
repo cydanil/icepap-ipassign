@@ -1,7 +1,11 @@
 import sys
 
-from PyQt5.QtCore import QObject, QRect
-from PyQt5.QtWidgets import QListWidget, QPushButton
+from PyQt5.QtCore import QObject, QRect, pyqtSlot
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QPushButton
+
+from .configurations import display_config_window
+
+from .testing import devices  # TODO: Remove this!
 
 
 class MainWindow(QObject):
@@ -18,18 +22,18 @@ class MainWindow(QObject):
         parent.setWindowTitle('ICEPAP remote configuration')
         parent.resize(620, 360)
 
-        devicesList = QListWidget(parent)
-        devicesList.setObjectName('devicesList')
-        devicesList.setGeometry(QRect(20, 30, 580, 170))
-        devicesList.addItem('No data yet')
-        self.devicesList = devicesList
+        lwDevices = QListWidget(parent)
+        lwDevices.setObjectName('devicesList')
+        lwDevices.setGeometry(QRect(20, 30, 580, 170))
+        lwDevices.addItem('No data yet')
+        lwDevices.itemDoubleClicked.connect(self.open_properties)
+        self.lwDevices = lwDevices
 
         pbQuit = QPushButton(parent)
         pbQuit.setObjectName('pbQuit')
         pbQuit.setGeometry(QRect(20, 300, 100, 40))
         pbQuit.setText('Quit')
         pbQuit.clicked.connect(sys.exit)
-        self.pbQuit = pbQuit
 
         pbLog = QPushButton(parent)
         pbLog.setObjectName('pbLog')
@@ -42,11 +46,35 @@ class MainWindow(QObject):
         pbProperties.setGeometry(QRect(500, 230, 100, 40))
         pbProperties.setText('Properties')
         pbProperties.setToolTip("The selected device's properties")
-        self.pbProperties = pbProperties
+        pbProperties.clicked.connect(self.on_pbProperties_clicked)
 
         pbRefresh = QPushButton(parent)
         pbRefresh.setObjectName('pbRefresh')
         pbRefresh.setGeometry(QRect(500, 300, 100, 40))
         pbRefresh.setText('Refresh')
         pbRefresh.setToolTip("Scan devices on the network")
-        self.pbRefresh = pbRefresh
+        pbRefresh.clicked.connect(self.list_devices)
+
+    def list_devices(self):
+        self.lwDevices.clear()
+
+        for device in devices:  # type(Device) == Configuration
+            line = (device.mac + '  '
+                    + device.ip.ljust(16) + '  '
+                    + device.hostname)
+            self.lwDevices.addItem(line)
+
+    @pyqtSlot(QListWidgetItem)
+    def open_properties(self, item):
+        mac = item.text().split()[0]
+        for config in devices:
+            if config.mac == mac:
+                break
+        print(config)
+        display_config_window(config)
+
+    def on_pbProperties_clicked(self):
+        item = self.lwDevices.currentItem()
+        if item is None:
+            item = self.lwDevices.item(0)
+        self.open_properties(item)

@@ -214,4 +214,4 @@ class Message:
         return ret
 
     def __repr__(self):
-        return f'Message.from_bytes("{self.to_bytes()}")'
+        return f'Message.from_bytes({self.to_bytes()})'
