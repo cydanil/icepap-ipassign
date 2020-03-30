@@ -199,7 +199,7 @@ class Configuration:
         return ret
 
     def __repr__(self):
-        return f'Payload.from_bytes({self.to_bytes()})'
+        return f'Configuration.from_bytes({self.to_bytes()})'
 
     def __eq__(self, other):
         if isinstance(other, Configuration):
