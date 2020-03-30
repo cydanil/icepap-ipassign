@@ -13,6 +13,7 @@ def main():
     After creating the Qt application, this will automatically look for
     device's on the network, and list them within the main window.
     """
+
     app = QApplication(sys.argv)
 
     w = QMainWindow()
@@ -22,6 +23,7 @@ def main():
     init_config_windows()
 
     main.pbLog.clicked.connect(log.display)
+    main.list_devices()
 
     w.show()
     log.log('Launched')

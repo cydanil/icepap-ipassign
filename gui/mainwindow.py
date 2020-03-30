@@ -4,8 +4,7 @@ from PyQt5.QtCore import QObject, QRect, pyqtSlot
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QPushButton
 
 from .configurations import display_config_window
-
-from .testing import devices  # TODO: Remove this!
+from .networking import network
 
 
 class MainWindow(QObject):
@@ -55,10 +54,15 @@ class MainWindow(QObject):
         pbRefresh.setToolTip("Scan devices on the network")
         pbRefresh.clicked.connect(self.list_devices)
 
+        # devices is a dict of mac address str: Configurations, as set
+        # in self.list_devices()
+        self.devices = None
+
     def list_devices(self):
         self.lwDevices.clear()
+        self.devices = network.do_discovery()
 
-        for device in devices:  # type(Device) == Configuration
+        for device in self.devices.values():
             line = (device.mac + '  '
                     + device.ip.ljust(16) + '  '
                     + device.hostname)
@@ -67,10 +71,7 @@ class MainWindow(QObject):
     @pyqtSlot(QListWidgetItem)
     def open_properties(self, item):
         mac = item.text().split()[0]
-        for config in devices:
-            if config.mac == mac:
-                break
-        print(config)
+        config = self.devices[mac]
         display_config_window(config)
 
     def on_pbProperties_clicked(self):

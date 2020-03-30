@@ -1,11 +1,13 @@
 import string
 
 from PyQt5.QtCore import QObject, QRect, Qt
-from PyQt5.QtWidgets import (QCheckBox, QDialog,
-                             QGroupBox, QLineEdit, QPushButton)
+from PyQt5.QtWidgets import (QCheckBox, QDialog, QGroupBox,
+                             QLineEdit, QMessageBox, QPushButton)
 
 from ipassign.utils import validate_ip_addr
-from ipassign import Configuration
+from ipassign import Configuration, acknowledgements
+
+from .networking import network
 
 # These are used to validate hostnames
 VALID_HN_CHARS = string.ascii_letters + string.digits + '-'
@@ -116,8 +118,19 @@ class HostnameWindow(QObject):
     def apply(self):
         self._config.hostname = self.leHostname.text()
         config, self._config = self._config, None
-        print(config)
         self.parent.close()
+
+        ret = network.send_configuration(config)
+        if ret is None:
+            msg = f'{config.mac} did not send an acknowledgment in time!'
+            box = QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
+        elif ret is acknowledgements.OK:
+            msg = f'{config.mac} applied config ok'
+            box = QMessageBox.information(self.parent, 'Device reply', msg)
+        else:
+            msg = f'{config.mac} replied with {ret.name} {ret.value}]'
+            box = QMessageBox.warning(self.parent, 'Error on device!', msg)
+        box.exec()
 
 
 class NetworkWindow(QObject):
@@ -322,11 +335,28 @@ class NetworkWindow(QObject):
         self.parent.show()
 
     def query_dns(self):
-        print('query dns')
+        raise NotImplementedError
 
     def query_device(self):
-        print('query device')
+        raise NotImplementedError
 
     def apply(self):
-        print('kthxbye')
+        config, self._config = self._config, None
         self.parent.close()
+        config.hostname = self.leHostname.text()
+        config.ip = self.leIP.text()
+        config.nw = self.leNetmask.text()
+        config.gw = self.leGateway.text()
+        config.bc = self.leBroadcast.text()
+
+        ret = network.send_configuration(config)
+        if ret is None:
+            msg = f'{config.mac} did not send an acknowledgment in time!'
+            box = QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
+        elif ret is acknowledgements.OK:
+            msg = f'{config.mac} applied config ok'
+            box = QMessageBox.information(self.parent, 'Device reply', msg)
+        else:
+            msg = f'{config.mac} replied with {ret.name} {ret.value}]'
+            box = QMessageBox.warning(self.parent, 'Error on device!', msg)
+        box.exec()
