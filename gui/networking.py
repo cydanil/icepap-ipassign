@@ -67,6 +67,7 @@ class NetworkInterface:
 
     def send_configuration(self, config: Configuration) -> commands:
         message = Message(source=self.mac,
+                          destination=config.mac,
                           command=commands.UPDATE_CONFIG,
                           payload=config)
         pack_no = message.packet_number

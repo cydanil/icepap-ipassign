@@ -123,14 +123,13 @@ class HostnameWindow(QObject):
         ret = network.send_configuration(config)
         if ret is None:
             msg = f'{config.mac} did not send an acknowledgment in time!'
-            box = QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
+            QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
         elif ret is acknowledgements.OK:
             msg = f'{config.mac} applied config ok'
-            box = QMessageBox.information(self.parent, 'Device reply', msg)
+            QMessageBox.information(self.parent, 'Device reply', msg)
         else:
             msg = f'{config.mac} replied with {ret.name} {ret.value}]'
-            box = QMessageBox.warning(self.parent, 'Error on device!', msg)
-        box.exec()
+            QMessageBox.warning(self.parent, 'Error on device!', msg)
 
 
 class NetworkWindow(QObject):
@@ -352,11 +351,10 @@ class NetworkWindow(QObject):
         ret = network.send_configuration(config)
         if ret is None:
             msg = f'{config.mac} did not send an acknowledgment in time!'
-            box = QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
+            QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
         elif ret is acknowledgements.OK:
             msg = f'{config.mac} applied config ok'
-            box = QMessageBox.information(self.parent, 'Device reply', msg)
+            QMessageBox.information(self.parent, 'Device reply', msg)
         else:
             msg = f'{config.mac} replied with {ret.name} {ret.value}]'
-            box = QMessageBox.warning(self.parent, 'Error on device!', msg)
-        box.exec()
+            QMessageBox.warning(self.parent, 'Error on device!', msg)
