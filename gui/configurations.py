@@ -381,17 +381,23 @@ class NetworkWindow(QObject):
         config.nw = self.leNetmask.text()
         config.gw = self.leGateway.text()
         config.bc = self.leBroadcast.text()
+        config.reboot = self.cbReboot.isChecked()
+        config.dynamic = self.cbDynamic.isChecked()
+        config.flash = self.cbFlash.isChecked()
 
         ret = network.send_configuration(config)
-        msg = f'{config.mac} ({config.hostname})'
-        if ret is None:
-            msg += ' did not send an acknowledgment in time!'
+        msg = f'{config.mac} ({config.hostname}) '
+        if config.reboot:
+            msg += 'will reboot. Please allow 45 seconds before it reappearing'
+            QMessageBox.information(self.parent, 'Device Reboot', msg)
+        elif ret is None:
+            msg += 'did not send an acknowledgment in time!'
             QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
         elif ret is acknowledgements.OK:
-            msg += ' applied the config ok'
+            msg += 'applied the config ok'
             QMessageBox.information(self.parent, 'Device reply', msg)
         else:
-            msg += ' replied with {ret.name} [{ret.value}]'
+            msg += 'replied with {ret.name} [{ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)
 
     @staticmethod
