@@ -1,6 +1,7 @@
 import sys
 
 from PyQt5.QtCore import QObject, QRect, pyqtSlot
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QPushButton
 
 from .configurations import display_config_window
@@ -24,6 +25,7 @@ class MainWindow(QObject):
         lwDevices = QListWidget(parent)
         lwDevices.setObjectName('devicesList')
         lwDevices.setGeometry(QRect(20, 30, 580, 170))
+        lwDevices.setFont(QFont('monospace'))
         lwDevices.addItem('No data yet')
         lwDevices.itemDoubleClicked.connect(self.open_properties)
         self.lwDevices = lwDevices
@@ -63,8 +65,8 @@ class MainWindow(QObject):
         self.devices = network.do_discovery()
 
         for device in self.devices.values():
-            line = (device.mac + '  '
-                    + device.ip.ljust(16) + '  '
+            line = (device.mac + '    '
+                    + device.ip.ljust(16) + '    '
                     + device.hostname)
             self.lwDevices.addItem(line)
 
