@@ -74,6 +74,8 @@ class MainWindow(QObject):
 
     @pyqtSlot(QListWidgetItem)
     def open_properties(self, item):
+        if item is None:
+            return
         mac = item.text().split()[0]
         config = self.devices[mac]
         display_config_window(config)
