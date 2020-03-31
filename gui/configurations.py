@@ -318,6 +318,7 @@ class NetworkWindow(QObject):
     def validator(self):
         sender = self.sender()
         content = sender.text()
+        ok = False
         color = RED
 
         if hasattr(self, 'pbApply'):
@@ -326,14 +327,20 @@ class NetworkWindow(QObject):
         if 'leHostname' in sender.objectName():
             if (content and all([c in VALID_HN_CHARS for c in content])
                     and not content.startswith('-')):
-                color = GREEN
+                ok = True
         else:  # it's an IP address string
             if content.count('.') == 3:
                 ok, _ = validate_ip_addr(content)
                 if ok:
-                    color = GREEN
+                    ips = [self.leNetmask.text(),
+                           self.leIP.text(),
+                           self.leGateway.text(),
+                           self.leBroadcast.text()]
+                    if all(x for x in ips):  # One could be empty at init
+                        ok = self.validate_ip_range(*ips)
 
-        if color is GREEN:
+        if ok:
+            color = GREEN
             self.pbApply.setEnabled(True)
         sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
 
@@ -383,3 +390,16 @@ class NetworkWindow(QObject):
         else:
             msg += ' replied with {ret.name} [{ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)
+
+    @staticmethod
+    def validate_ip_range(netmask, *ips):
+        """Validate that all ips are within the netmask"""
+        bytes_ = len([b for b in netmask.split('.') if b == '255'])
+        ok = True
+        for idx in range(len(ips)-1):
+            current = ips[idx]
+            current = '.'.join(current.split('.')[:bytes_])
+            next_ = ips[idx+1]
+            next_ = '.'.join(next_.split('.')[:bytes_])
+            ok = ok and current == next_
+        return ok
