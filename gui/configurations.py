@@ -135,14 +135,15 @@ class HostnameWindow(QObject):
         self.parent.close()
 
         ret = network.send_configuration(config)
+        msg = f'{config.mac} ({config.hostname}) '
         if ret is None:
-            msg = f'{config.mac} did not send an acknowledgment in time!'
+            msg += 'did not send an acknowledgment in time!'
             QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
         elif ret is acknowledgements.OK:
-            msg = f'{config.mac} applied config ok'
+            msg += 'applied config ok'
             QMessageBox.information(self.parent, 'Device reply', msg)
         else:
-            msg = f'{config.mac} replied with {ret.name} {ret.value}]'
+            msg += 'replied with {ret.name} {ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)
 
 
@@ -150,12 +151,15 @@ class NetworkWindow(QObject):
     """NetworkWindow allows the setting of all of a device's network settings.
 
     These are Hostname, IP settings, and whether to apply these settings
-    dynamically, write them to flash, or reboot.
+    dynamically, to write them to flash, or reboot.
 
     Alternatively, it is also possible to query the DNS and set these as values
     to apply.
 
-    There is also a button to re-query the device for its current settings.
+    The configuration given at the moment of drawing the window is kept
+    within `self._config`.
+
+    The new configuration will only be created when `self.pbApply` is clicked.
     """
 
     def __init__(self, parent=None):
