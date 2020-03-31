@@ -62,7 +62,9 @@ class MainWindow(QObject):
 
     def list_devices(self):
         self.lwDevices.clear()
-        self.devices = network.do_discovery()
+        devices = network.do_discovery()
+        self.devices = {mac: config for mac, config in
+                        sorted(devices.items(), key=lambda i: i[1].hostname)}
 
         for device in self.devices.values():
             line = (device.mac + '    '
