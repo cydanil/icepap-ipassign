@@ -238,4 +238,16 @@ Testing this library done with `pytest`:
 
 For development, a mock icepap server can be found in `utils/mock_icepap`.
 This mock server behaves like real hardware, and will send the appropriate
-replies.
+replies:
+
+```bash
+$ python utils/mock_icepap
+Working with e3:cd:77:a0:18:30 and dvepklrlyq
+```
+
+The script also accepts a mac address as argument:
+
+```bash
+$ python utils/mock_icepap 00:0B:AD:C0:FF:EE
+Working with 00:0B:AD:C0:FF:EE and kqifwchhiz
+```

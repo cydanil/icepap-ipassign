@@ -26,14 +26,15 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 sock.bind(('', MULTICAST_PORT))
 
 # Get a mac address for this session
-if len(sys.argv) == 3:
+if len(sys.argv) == 2:
     mac = sys.argv[-1]
 else:
     mac = ':'.join([hex(random.randint(1, 255))[2:].zfill(2) for
                     _ in range(6)])
-print(f'Working with {mac}')
 
 hostname = ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
+
+print(f'Working with {mac} and {hostname}')
 
 # Create a mock configuration to send ipassign
 config = Configuration(target_id=mac,  # will be overwritten in due time
