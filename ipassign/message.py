@@ -10,33 +10,40 @@ MAX_PACKET_LENGTH = 1048
 
 
 class Message:
-    """An IcePap packet has the following structure:
+    """An IPAssign packet has the following structure:
 
-        [header]       # 14 bytes
-        [destination]  # 6 bytes, 6 x uint8
-        [payload]      # variable length, 0 to 1024 bytes
-        [checksum]     # 4 bytes, uint32, little endian
+        [header]      # 14 bytes
+        [destination] # 6 bytes, 6 x uint8
+        [payload]     # variable length, 0 to 1024 bytes
+        [checksum]    # 4 bytes, uint32, little endian
 
     [destination] is the mac address of the target device. When broadcasting,
-                  this address is set to a single byte with value 0x00.
+                 this address is set to a single byte with value 0x00.
     [payload] is the data sent to the target device.
-    [checksum] the crc32 of [header][destination][payload], encoded in little
+    [checksum] the crc32 of `[header][destination][payload]`, encoded in little
                endian, then appended to the packet.
-
     [header] has the following structure:
 
-        [source]         # 6 bytes, 6 x uint8
-        [target id]      # 2 byte, uint16
-        [packet number]  # 2 bytes, uint16
-        [command]        # 2 bytes, uint16
-        [payload size]   # 2 bytes, uint16
+        [source]        # 6 bytes, 6 x uint8
+        [target count]  # 2 byte, uint16
+        [packet number] # 2 bytes, uint16
+        [command]       # 2 bytes, uint16
+        [payload size]  # 2 bytes, uint16
 
-    [source] source is the mac address of the device emitting the packet
-    [target id] is an IcePaP network id.
+    [source] is the mac address of the device emitting the packet.
+    [target count] is set to 0 when broadcasting to the whole group,
+                   or 1 when targeting a specific device.
     [packet number] is the packet count sent by this device.
     [command] is one of the predefined commands, eg. set hostname, see
-              ipassign.commands
+              ipassign.commands for available commands.
     [payload size] describes the quantity of bytes in the payload to read.
+
+
+    `target count` is called so, to maintain consistency with other legacy
+    code. It was originally envisioned that several devices could be targeted
+    by a single message, hence its uint16 format.
+    In practice, however, it is effectively used as a boolean: it should be
+    understood as `is_not_broadcasting`.
 
     Here is a broadcast message, represented in hex:
 
