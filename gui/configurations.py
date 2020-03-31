@@ -12,6 +12,10 @@ from .networking import network
 # These are used to validate hostnames
 VALID_HN_CHARS = string.ascii_letters + string.digits + '-'
 
+# These colours are used in validators to highlight the QLineEdits
+RED = '#f6989d'
+GREEN = '#c4df9b'
+
 # This boolean is used to keep track of which of the two Hostname or Network
 # window to display.
 # By default, the Hostname window is displayed to the user.
@@ -55,6 +59,7 @@ class HostnameWindow(QObject):
         super(HostnameWindow, self).__init__(parent=parent)
         if parent is None:
             parent = QDialog()
+
         parent.setObjectName('hostnameProperty')
         parent.setWindowTitle('ICEPAP Parameters & Configuration')
         parent.setModal(False)
@@ -69,6 +74,7 @@ class HostnameWindow(QObject):
         leHostname = QLineEdit(gbHostname)
         leHostname.setObjectName('leHostname')
         leHostname.setGeometry(QRect(10, 23, 260, 30))
+        leHostname.setToolTip(f'Valid characters are {VALID_HN_CHARS}')
         leHostname.textChanged.connect(self.validator)
         leHostname.textChanged.emit(leHostname.text())
         self.leHostname = leHostname
@@ -84,6 +90,8 @@ class HostnameWindow(QObject):
         pbApply.setText('Apply')
         pbApply.setGeometry(QRect(180, 90, 80, 40))
         pbApply.clicked.connect(self.apply)
+        pbApply.setEnabled(False)
+        self.pbApply = pbApply
 
         pbCancel = QPushButton(parent)
         pbCancel.setObjectName('pbCancel')
@@ -96,11 +104,17 @@ class HostnameWindow(QObject):
     def validator(self):
         sender = self.sender()
         content = sender.text()
-        color = '#f6989d'  # red
+        color = RED
+
+        if hasattr(self, 'pbApply'):
+            self.pbApply.setEnabled(False)
 
         if (content and all([c in VALID_HN_CHARS for c in content])
                 and not content.startswith('-')):
-            color = '#c4df9b'  # green
+            color = GREEN
+
+        if color is GREEN:
+            self.pbApply.setEnabled(True)
         sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
 
     def show(self, config: Configuration) -> None:
@@ -229,6 +243,7 @@ class NetworkWindow(QObject):
         leHostname = QLineEdit(gbHostname)
         leHostname.setObjectName('leHostname1')
         leHostname.setGeometry(QRect(10, 25, 230, 30))
+        leHostname.setToolTip(f'Valid characters are {VALID_HN_CHARS}')
         leHostname.textChanged.connect(self.validator)
         leHostname.textChanged.emit(leHostname.text())
         self.leHostname = leHostname
@@ -266,6 +281,7 @@ class NetworkWindow(QObject):
         pbApply.setGeometry(QRect(90, 145, 116, 40))
         pbApply.setToolTip('Send the configuration to the device')
         pbApply.clicked.connect(self.apply)
+        self.pbApply = pbApply
 
         # other actions
         pbHostnameMode = QPushButton(parent)
@@ -302,15 +318,23 @@ class NetworkWindow(QObject):
     def validator(self):
         sender = self.sender()
         content = sender.text()
-        color = '#f6989d'  # red
+        color = RED
+
+        if hasattr(self, 'pbApply'):
+            self.pbApply.setEnabled(False)
+
         if 'leHostname' in sender.objectName():
-            if content and all([c in VALID_HN_CHARS for c in content]):
-                color = '#c4df9b'  # green
+            if (content and all([c in VALID_HN_CHARS for c in content])
+                    and not content.startswith('-')):
+                color = GREEN
         else:  # it's an IP address string
             if content.count('.') == 3:
                 ok, _ = validate_ip_addr(content)
                 if ok:
-                    color = '#c4df9b'  # green
+                    color = GREEN
+
+        if color is GREEN:
+            self.pbApply.setEnabled(True)
         sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
 
     def switch_mode(self):
@@ -349,12 +373,13 @@ class NetworkWindow(QObject):
         config.bc = self.leBroadcast.text()
 
         ret = network.send_configuration(config)
+        msg = f'{config.mac} ({config.hostname})'
         if ret is None:
-            msg = f'{config.mac} did not send an acknowledgment in time!'
+            msg += ' did not send an acknowledgment in time!'
             QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
         elif ret is acknowledgements.OK:
-            msg = f'{config.mac} applied config ok'
+            msg += ' applied the config ok'
             QMessageBox.information(self.parent, 'Device reply', msg)
         else:
-            msg = f'{config.mac} replied with {ret.name} {ret.value}]'
+            msg += ' replied with {ret.name} [{ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)

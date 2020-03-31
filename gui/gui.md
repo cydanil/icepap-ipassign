@@ -29,4 +29,16 @@ A log of the traffic on the network and actions within ipassign can be viewed in
 This window contains a read-only text field that, when displayed refreshes automatically.  
 From the log window, it is possible to save these to file.
 
+## Input Validation
+There are three forms of input:
+    - QCheckboxes (which do not require validation);
+    - QLineEdits for IPs, validated as four blocks of 1 to 3 digits separated by 3 dots;
+    - QLineEdits for hostnames, validated with respect to REF 1123, section 2.1.
+
+When an input is not validated, the `pbApply` of the given window is disabled and the
+QLineEdit in question is marked red.
+
+When an input is validated, it is marked as green.
+
+
 [gui_workflow]: workflow.png "Image describing a user's workflow"
