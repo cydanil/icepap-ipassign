@@ -300,12 +300,12 @@ class NetworkWindow(QObject):
                'DNS will be loaded, but not applied')
         pbQueryDNS.setToolTip(tip)
 
-        pbQueryDevice = QPushButton(parent)
-        pbQueryDevice.setObjectName('pbQueryDevice')
-        pbQueryDevice.setText('Read HW values')
-        pbQueryDevice.setGeometry(QRect(350, 370, 116, 40))
-        pbQueryDevice.setToolTip('Re-query the device, and load its values')
-        pbQueryDevice.clicked.connect(self.query_device)
+        pbReset = QPushButton(parent)
+        pbReset.setObjectName('pbReset')
+        pbReset.setText('Reset')
+        pbReset.setGeometry(QRect(350, 370, 116, 40))
+        pbReset.setToolTip('Load values obtained from device')
+        pbReset.clicked.connect(self.reset)
 
         pbCancel = QPushButton(parent)
         pbCancel.setObjectName('pbCancel')
@@ -362,13 +362,16 @@ class NetworkWindow(QObject):
         self.leNetmask.setText(config.nm)
         self.leGateway.setText(config.gw)
         self.leBroadcast.setText(config.bc)
+        self.cbReboot.setChecked(False)
+        self.cbDynamic.setChecked(False)
+        self.cbFlash.setChecked(False)
         self.parent.show()
 
     def query_dns(self):
         raise NotImplementedError
 
-    def query_device(self):
-        raise NotImplementedError
+    def reset(self):
+        self.show(self._config)
 
     def apply(self):
         config, self._config = self._config, None
