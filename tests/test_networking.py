@@ -1,9 +1,13 @@
+import os
 import socket
+import sys
+sys.path.insert(0,
+                os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from ipassign import is_known_hostname
+from gui.networking import gethostbyname  # noqa : import not at top of file
 
 
-def test_is_known_hostname():
+def test_gethostbyname():
     def mock_call(val):
         if val == 'known':
             return '172.24.1.105'
@@ -11,5 +15,5 @@ def test_is_known_hostname():
 
     setattr(socket, 'gethostbyname', mock_call)
 
-    assert is_known_hostname('known') == '172.24.1.105'
-    assert not is_known_hostname('unknown')
+    assert gethostbyname('known') == '172.24.1.105'
+    assert not gethostbyname('unknown')

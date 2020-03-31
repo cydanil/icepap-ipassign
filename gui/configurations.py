@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QCheckBox, QDialog, QGroupBox,
 from ipassign.utils import validate_ip_addr
 from ipassign import Configuration, acknowledgements
 
-from .networking import network
+from .networking import gethostbyname, network
 
 # These are used to validate hostnames
 VALID_HN_CHARS = string.ascii_letters + string.digits + '-'
@@ -300,8 +300,8 @@ class NetworkWindow(QObject):
         pbQueryDNS.setGeometry(QRect(170, 370, 116, 40))
         pbQueryDNS.clicked.connect(self.query_dns)
 
-        tip = ('If the hostname is found in the DNS, then the values from the '
-               'DNS will be loaded, but not applied')
+        tip = ('If the hostname is found in the DNS, then the ip address from '
+               'the DNS will be loaded, but not applied')
         pbQueryDNS.setToolTip(tip)
 
         pbReset = QPushButton(parent)
@@ -372,7 +372,9 @@ class NetworkWindow(QObject):
         self.parent.show()
 
     def query_dns(self):
-        raise NotImplementedError
+        val = gethostbyname(self.leHostname.text())
+        if val:
+            self.leIP.setText(val)
 
     def reset(self):
         self.show(self._config)

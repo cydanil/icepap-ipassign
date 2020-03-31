@@ -1,6 +1,8 @@
 import socket
 import struct
 
+from typing import Union
+
 from ipassign import (commands, Configuration, MAX_PACKET_LENGTH, Message,
                       MULTICAST_ADDR, MULTICAST_PORT)
 
@@ -88,3 +90,10 @@ class NetworkInterface:
 
 
 network = NetworkInterface()
+
+
+def gethostbyname(name: str) -> Union[bool, str]:
+    try:
+        return socket.gethostbyname(name)
+    except socket.gaierror:
+        return False
