@@ -1,8 +1,8 @@
 from datetime import datetime as dt
 
 from PyQt5.QtCore import QObject, QRect
-from PyQt5.QtWidgets import (QDialog, QFileDialog,
-                             QGroupBox, QTextEdit, QPushButton)
+from PyQt5.QtWidgets import (QDialog, QFileDialog, QGroupBox,
+                             QMessageBox, QTextEdit, QPushButton)
 
 
 class LogWindow(QObject):
@@ -64,7 +64,8 @@ class LogWindow(QObject):
                 with open(filename, 'w') as fout:
                     fout.write(self.teLog.toPlainText())
                     fout.write('\n')
-                msg = f'Log saved to {filename}'
-            except (OSError, PermissionError):
+            except (OSError, PermissionError)as err:
                 msg = f'Could not save log to {filename}!'
-            self.log(msg)
+                if isinstance(err, PermissionError):
+                    msg += '\nPermission Denied'
+                QMessageBox.warning(self.parent, 'Could not save logs', msg)
