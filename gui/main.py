@@ -20,8 +20,10 @@ def main():
     main = MainWindow(w)
     log = LogWindow()
 
-    init_config_windows()
+    hostname, network = init_config_windows()
 
+    hostname.done.connect(main.list_devices)
+    network.done.connect(main.list_devices)
     main.pbLog.clicked.connect(log.display)
     main.list_devices()
 

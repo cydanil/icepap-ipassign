@@ -1,6 +1,6 @@
 import string
 
-from PyQt5.QtCore import QObject, QRect, Qt
+from PyQt5.QtCore import pyqtSignal, QObject, QRect, Qt
 from PyQt5.QtWidgets import (QCheckBox, QDialog, QGroupBox,
                              QLineEdit, QMessageBox, QPushButton)
 
@@ -33,6 +33,7 @@ def init_config_windows():
     global HOSTNAME_WINDOW, NETWORK_WINDOW
     HOSTNAME_WINDOW = HostnameWindow()
     NETWORK_WINDOW = NetworkWindow()
+    return HOSTNAME_WINDOW, NETWORK_WINDOW
 
 
 def display_config_window(config: Configuration = None) -> None:
@@ -54,6 +55,8 @@ class HostnameWindow(QObject):
     Setting the hostname is the most common operation, and is ipassign's
     default mode of operation.
     """
+
+    done = pyqtSignal()
 
     def __init__(self, parent=None):
         super(HostnameWindow, self).__init__(parent=parent)
@@ -146,6 +149,8 @@ class HostnameWindow(QObject):
             msg += 'replied with {ret.name} {ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)
 
+        self.done.emit()
+
 
 class NetworkWindow(QObject):
     """NetworkWindow allows the setting of all of a device's network settings.
@@ -161,6 +166,8 @@ class NetworkWindow(QObject):
 
     The new configuration will only be created when `self.pbApply` is clicked.
     """
+
+    done = pyqtSignal()
 
     def __init__(self, parent=None):
         super(NetworkWindow, self).__init__(parent=parent)
@@ -405,6 +412,8 @@ class NetworkWindow(QObject):
         else:
             msg += 'replied with {ret.name} [{ret.value}]'
             QMessageBox.warning(self.parent, 'Error on device!', msg)
+
+        self.done.emit()
 
     @staticmethod
     def validate_ip_range(netmask, *ips):
