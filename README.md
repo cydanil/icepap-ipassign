@@ -242,15 +242,24 @@ replies:
 
 ```bash
 $ python utils/mock_icepap
-Working with e3:cd:77:a0:18:30 and dvepklrlyq
+Working with e3:cd:77:a0:18:30 and dvepklrlyq, no ack: False
 ```
 
 The script also accepts a mac address as argument:
 
 ```bash
 $ python utils/mock_icepap 00:0B:AD:C0:FF:EE
-Working with 00:0B:AD:C0:FF:EE and kqifwchhiz
+Working with 00:0b:ad:c0:ff:ee and kqifwchhiz, no ack: False
 ```
+
+It's also possible to make the script not send acknowledgements:
+
+```bash
+$ python utils/mock_icepap --nack
+Working with 53:2e:d2:f9:7b:af and kvdkkleuqc, no ack: True
+```
+
+
 
 ## Embedded IcePAP Considerations
 
