@@ -335,14 +335,6 @@ class NetworkWindow(QObject):
         else:  # it's an IP address string
             if content.count('.') == 3:
                 ok, _ = validate_ip_addr(content)
-                if ok:
-                    ips = [self.leNetmask.text(),
-                           self.leIP.text(),
-                           self.leGateway.text(),
-                           self.leBroadcast.text()]
-                    if all(x for x in ips):  # One could be empty at init
-                        ok = self.validate_ip_range(*ips)
-
         if ok:
             color = GREEN
             self.pbApply.setEnabled(True)
@@ -380,8 +372,16 @@ class NetworkWindow(QObject):
         self.show(self._config)
 
     def apply(self):
-        config, self._config = self._config, None
+        ips = [self.leNetmask.text(), self.leIP.text(),
+               self.leGateway.text(), self.leBroadcast.text()]
+        ok = self.validate_ip_range(*ips)
+        if not ok:
+            msg = 'One of the addresses is not within range of the others'
+            QMessageBox.warning(self.parent, 'IPs not matching', msg)
+            return
+
         self.parent.close()
+        config, self._config = self._config, None
         config.hostname = self.leHostname.text()
         config.ip = self.leIP.text()
         config.nw = self.leNetmask.text()
