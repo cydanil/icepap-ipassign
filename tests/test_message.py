@@ -8,31 +8,40 @@ from test_data import (
 def test_message_object_instantiation():
     mac = [0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE]
     Message.packno = 0
-    m = Message(source=mac, command=commands.RESET)
+    m = Message(source=mac, destination=mac, command=commands.RESET)
     assert isinstance(m, Message)
 
     assert m.source == '00:0b:ad:c0:ff:ee'
-    assert m.target_count == 0
+    assert m.target_count == 1
     assert m.packet_number == 1
     assert m.command == commands.RESET
-    assert m.destination is None
+    assert m.destination == '00:0b:ad:c0:ff:ee'
     assert m.payload == b''
 
-    m = Message(source=mac, command=commands.CHANGE_IP)
+    m = Message(source=mac, destination=mac, command=commands.CHANGE_IP)
     assert m.packet_number == 2
 
     expected = """[header]
     [source]       = 00:0b:ad:c0:ff:ee
-    [target count] = 0
+    [target count] = 1
     [packet no]    = 2
     [command]      = CHANGE_IP [0x6]
     [payload len]  = 0
-[destination] = BROADCAST
+[destination] = 00:0b:ad:c0:ff:ee
 [payload] = none
-[checksum] = 0xa922c58"""
+[checksum] = 0x5f17f037"""
     assert str(m) == expected
 
     m.source = "00:de:ad:be:ef:00"
+
+
+def test_destination_check():
+    with pytest.raises(ValueError):
+        Message(source='00:0B:AD:C0:FF:EE',
+                command=commands.RESET)
+
+    Message(source='00:0B:AD:C0:FF:EE',
+            command=commands.REQUEST_CONFIG)
 
 
 def test_deserialisation():

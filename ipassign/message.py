@@ -65,9 +65,13 @@ class Message:
 
         if not isinstance(command, commands):
             raise TypeError('expected a command enum')
+        if destination is None and command is not commands.REQUEST_CONFIG:
+            raise ValueError('Only commands.REQUEST_CONFIG can omit the '
+                             'destination. Other commands must include a '
+                             'destination mac address')
         self.command = command
-
         self.destination = destination
+
         self.payload = payload
 
     @property
