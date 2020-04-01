@@ -1,6 +1,6 @@
 # icepap-ipassign
 
-Remotely configure icepap network settings.
+Remotely configure IcePAP network settings.
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
 Its aim is to provide an easy way to set-up network settings over UDP multicast,
@@ -12,6 +12,22 @@ This package requires Python 3.7+.
 Clone and download this repository, and install it with `pip`:
 
     pip install .
+
+## Usage
+
+ipassign is a graphical application.
+Launch it so:
+
+    $ ipassign
+
+In the main window, you will be given a list of discovered devices. Clicking on one
+will show its configuration window.
+
+The most common operation is the setting of the hostname, and a simple window will
+pop up.  
+For further network settings, hit `Advanced`.
+
+The gui is further documented in [gui/gui.md](gui/gui.md)
 
 ## Protocol
 
@@ -220,6 +236,57 @@ Testing this library done with `pytest`:
     pip install .
     pytest -vv
 
-For development, a mock icepap server can be found in `utils/mock_icepap`.
+For development, a mock IcePAP server can be found in `utils/mock_icepap`.
 This mock server behaves like real hardware, and will send the appropriate
-replies.
+replies:
+
+```bash
+$ python utils/mock_icepap
+Working with e3:cd:77:a0:18:30 and dvepklrlyq, no ack: False
+```
+
+The script also accepts a mac address as argument:
+
+```bash
+$ python utils/mock_icepap 00:0B:AD:C0:FF:EE
+Working with 00:0b:ad:c0:ff:ee and kqifwchhiz, no ack: False
+```
+
+It's also possible to make the script not send acknowledgements:
+
+```bash
+$ python utils/mock_icepap --nack
+Working with 53:2e:d2:f9:7b:af and kvdkkleuqc, no ack: True
+```
+
+
+
+## Embedded IcePAP Considerations
+
+The `listener` process embedded in IcePAP devices expects well-formatted
+packets, and does not do any error handling.  
+As such, it is up to the sender to ensure that the packet is correct.
+
+Any malformed message or nonsense bytes sent to an IcePAP will make
+the `listener` crash.
+
+To restart it, telnet as `root` in the IcePAP device, and execute
+`/usr/sbin/icepap_startup_local restart`:
+
+```bash
+$ telnet icepap
+icepap login: root
+Password:
+
+root@icepap # /usr/sbin/icepap_startup_local restart
+Stopping ipassign listener......done
+Stopping icepap communication...done
+Removing icepap driver..........done
+Removing blisspipe driver.......done
+Loading  icepap driver..........done
+Loading  blisspipe driver.......done
+Starting icepap communication...done
+Starting ipassign listener......done
+```
+
+The device will then appear in `ipassign` upon doing a `Refresh`.

@@ -37,6 +37,9 @@ def test_instantiation():
     assert str(pp) == expected
     assert p == pp
 
+    repr_ = "Configuration.from_bytes(b'\\x00\\x0b\\xad\\xc0\\xff\\xee\\x08\\x08\\x08\\x08\\xac\\x18\\x9b\\x19\\xff\\xff\\xff\\x00\\xac\\x18\\x9bc\\x00\\x0b\\xad\\xc0\\xff\\xee\\x00\\x00\\x00\\x00yolo\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00')"  # noqa
+    assert repr(p) == repr_
+
 
 def test_deserialisation():
     p = Configuration.from_bytes(CONFIGURATION)
