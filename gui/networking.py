@@ -31,6 +31,7 @@ class NetworkInterface(QObject):
 
     def __init__(self):
         super().__init__()
+
         # Create the socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

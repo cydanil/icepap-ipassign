@@ -60,7 +60,7 @@ class HostnameWindow(QObject):
     log = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(HostnameWindow, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         if parent is None:
             parent = QDialog()
 
@@ -174,7 +174,7 @@ class NetworkWindow(QObject):
     log = pyqtSignal(str)
 
     def __init__(self, parent=None):
-        super(NetworkWindow, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         if parent is None:
             parent = QDialog()
         parent.setObjectName('networkProperties')

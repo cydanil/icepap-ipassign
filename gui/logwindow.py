@@ -15,7 +15,7 @@ class LogWindow(QObject):
     """
 
     def __init__(self, parent=None):
-        super(LogWindow, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         if parent is None:
             parent = QDialog()
 

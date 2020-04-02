@@ -16,7 +16,7 @@ class MainWindow(QObject):
     windows.
     """
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent=parent)
+        super().__init__(parent=parent)
         parent.setObjectName('mainWindow')
         parent.setWindowTitle('ICEPAP remote configuration')
         parent.resize(620, 360)
