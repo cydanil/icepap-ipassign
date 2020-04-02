@@ -65,7 +65,7 @@ class MainWindow(QObject):
                         sorted(devices.items(), key=lambda i: i[1].hostname)}
 
         for device in self.devices.values():
-            line = (device.mac + '    '
+            line = (device.mac.upper() + '    '
                     + device.ip.ljust(16) + '    '
                     + device.hostname)
             self.lwDevices.addItem(line)

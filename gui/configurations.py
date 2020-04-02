@@ -363,7 +363,7 @@ class NetworkWindow(QObject):
     def show(self, config: Configuration) -> None:
         self._config = config
         self.leHostname.setText(config.hostname)
-        self.leMac.setText(config.mac)
+        self.leMac.setText(config.mac.upper())
         self.leIP.setText(config.ip)
         self.leNetmask.setText(config.nm)
         self.leGateway.setText(config.gw)
