@@ -18,7 +18,7 @@ class MainWindow(QObject):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         parent.setObjectName('mainWindow')
-        parent.setWindowTitle('ICEPAP remote configuration')
+        parent.setWindowTitle('IcePAP remote configuration')
         parent.resize(620, 360)
 
         lwDevices = QListWidget(parent)

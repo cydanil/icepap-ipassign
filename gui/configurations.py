@@ -65,7 +65,7 @@ class HostnameWindow(QObject):
             parent = QDialog()
 
         parent.setObjectName('hostnameProperty')
-        parent.setWindowTitle('ICEPAP Parameters & Configuration')
+        parent.setWindowTitle('IcePAP Parameters & Configuration')
         parent.setModal(False)
         parent.resize(380, 150)
         self.parent = parent
@@ -178,7 +178,7 @@ class NetworkWindow(QObject):
         if parent is None:
             parent = QDialog()
         parent.setObjectName('networkProperties')
-        parent.setWindowTitle('ICEPAP Parameters & Configuration')
+        parent.setWindowTitle('IcePAP Parameters & Configuration')
         parent.setModal(False)
         parent.resize(630, 430)
         self.parent = parent

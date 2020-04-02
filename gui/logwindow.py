@@ -20,7 +20,7 @@ class LogWindow(QObject):
             parent = QDialog()
 
         parent.setObjectName('logWindow')
-        parent.setWindowTitle('ICEPAP Logs')
+        parent.setWindowTitle('IcePAP Logs')
         parent.resize(710, 480)
         self.parent = parent
 
