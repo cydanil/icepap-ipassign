@@ -6,6 +6,8 @@ IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
 Its aim is to provide an easy way to set-up network settings over UDP multicast,
 without the need for a complete DaNCE suite.
 
+![alt text](gui/action_shot.png "Action shot")
+
 ## Installing
 
 This package requires Python 3.7+.  

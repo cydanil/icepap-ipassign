@@ -57,6 +57,7 @@ class HostnameWindow(QObject):
     """
 
     done = pyqtSignal()
+    log = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super(HostnameWindow, self).__init__(parent=parent)
@@ -133,7 +134,9 @@ class HostnameWindow(QObject):
         display_config_window(config)
 
     def apply(self):
-        self._config.hostname = self.leHostname.text()
+        hostname = self.leHostname.text()
+        self.log.emit(f'Renaming {self._config.hostname} -> {hostname}')
+        self._config.hostname = hostname
         config, self._config = self._config, None
         self.parent.close()
 
@@ -168,6 +171,7 @@ class NetworkWindow(QObject):
     """
 
     done = pyqtSignal()
+    log = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super(NetworkWindow, self).__init__(parent=parent)
@@ -190,7 +194,6 @@ class NetworkWindow(QObject):
         leMac.setGeometry(QRect(10, 25, 230, 30))
         leMac.setAlignment(Qt.AlignHCenter)
         leMac.setReadOnly(True)
-        leMac.setText('00:DE:AD:BE:EF')
         self.leMac = leMac
 
         # ip setting
@@ -386,6 +389,9 @@ class NetworkWindow(QObject):
             msg = 'One of the addresses is not within range of the others'
             QMessageBox.warning(self.parent, 'IPs not matching', msg)
             return
+
+        msg = f'Reconfiguring {self._config.mac} ({self._config.hostname})'
+        self.log.emit(msg)
 
         self.parent.close()
         config, self._config = self._config, None

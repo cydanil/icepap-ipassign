@@ -24,12 +24,6 @@ configured.
 By default, `HostnameWindow` is displayed.  
 The `Advanced` push-button allows to switch to the `NetworkWindow` view.
 
-A log of the traffic on the network and actions within ipassign can be viewed
-in `LogWindow`.
-This window contains a read-only text field that, when displayed refreshes
-automatically.  
-From the log window, it is possible to save these to file.
-
 ## MainWindow
 
 Results of the discovery are sorted by hostname in the central list.
@@ -69,10 +63,20 @@ As with `HostnameWindow`, the hostname is validated against RFC 1123.
 
 If any field is invalid, `Apply` will be disabled.
 
+## Log Window
+
+A log of the traffic on the network and actions within ipassign can be viewed
+in `LogWindow`.
+This window contains a read-only text field that, when displayed refreshes
+automatically.  
+From the log window, it is possible to save these to file.
+
 ## Networking
 
 All the networking is handled by `networking.NetworkInterface`. This object has
 the two methods `do_discovery` and `send_configuration`.
+
+Messages to and from ipassign always have the mac address `00:D1:5E:A5:ED:00`
 
 
 [gui_workflow]: workflow.png "Image describing a user's workflow"

@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from .configurations import init_config_windows
 from .logwindow import LogWindow
 from .mainwindow import MainWindow
+from .networking import network
 
 
 def main():
@@ -16,17 +17,23 @@ def main():
 
     app = QApplication(sys.argv)
 
-    w = QMainWindow()
-    main = MainWindow(w)
+    window = QMainWindow()
+    main_window = MainWindow(window)
+    hm_window, nw_window = init_config_windows()
     log = LogWindow()
 
-    hostname, network = init_config_windows()
+    hm_window.done.connect(main_window.list_devices)
+    nw_window.done.connect(main_window.list_devices)
 
-    hostname.done.connect(main.list_devices)
-    network.done.connect(main.list_devices)
-    main.pbLog.clicked.connect(log.display)
-    main.list_devices()
+    network.log.connect(log.log)
+    hm_window.log.connect(log.log)
+    nw_window.log.connect(log.log)
 
-    w.show()
+    main_window.pbLog.clicked.connect(log.display)
+
+    window.show()
+
     log.log('Launched')
+    main_window.list_devices()
+
     sys.exit(app.exec_())

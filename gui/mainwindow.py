@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtCore import QObject, QRect, pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QObject, QRect
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QPushButton
 
@@ -15,7 +15,6 @@ class MainWindow(QObject):
     configuration can be modified in the HostnameSettings or NetworkSettings
     windows.
     """
-
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent=parent)
         parent.setObjectName('mainWindow')
@@ -26,7 +25,6 @@ class MainWindow(QObject):
         lwDevices.setObjectName('devicesList')
         lwDevices.setGeometry(QRect(20, 30, 580, 170))
         lwDevices.setFont(QFont('monospace'))
-        lwDevices.addItem('No data yet')
         lwDevices.itemDoubleClicked.connect(self.open_properties)
         self.lwDevices = lwDevices
 
@@ -56,8 +54,8 @@ class MainWindow(QObject):
         pbRefresh.setToolTip("Scan devices on the network")
         pbRefresh.clicked.connect(self.list_devices)
 
-        # devices is a dict of mac address str: Configurations, as set
-        # in self.list_devices()
+        # self.devices is a dict of {mac address str: Configurations},
+        # as set in self.list_devices()
         self.devices = None
 
     def list_devices(self):

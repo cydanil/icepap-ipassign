@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 
-from PyQt5.QtCore import QObject, QRect
+from PyQt5.QtCore import pyqtSlot, QObject, QRect
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QDialog, QFileDialog, QGroupBox,
                              QMessageBox, QTextEdit, QPushButton)
 
@@ -31,6 +32,7 @@ class LogWindow(QObject):
         teLog = QTextEdit(groupBox)
         teLog.setObjectName('teLog')
         teLog.setGeometry(QRect(10, 20, 670, 370))
+        teLog.setFont(QFont('monospace'))
         teLog.setReadOnly(True)
         self.teLog = teLog
 
@@ -50,6 +52,7 @@ class LogWindow(QObject):
         if not self.parent.isVisible():
             self.parent.show()
 
+    @pyqtSlot(str)
     def log(self, content):
         header = dt.strftime(dt.now(), '%Y/%m/%d %H:%M:%S> ')
         self.teLog.append(header + content)

@@ -3,13 +3,16 @@ import struct
 
 from typing import Union
 
+from PyQt5.QtCore import pyqtSignal, QObject
+
 from ipassign import (commands, Configuration, MAX_PACKET_LENGTH, Message,
                       MULTICAST_ADDR, MULTICAST_PORT)
 
 NETWORK = (MULTICAST_ADDR, MULTICAST_PORT)
+IP_ASSIGN_MAC = "00:D1:5E:A5:ED:00"
 
 
-class NetworkInterface:
+class NetworkInterface(QObject):
     """This object is the only creator of Message objects.
     The rest of the application deals with Configuration objects.
 
@@ -19,9 +22,15 @@ class NetworkInterface:
     This object connect to all interfaces.
     This object is designed to handle messages serially. Its architecture does
     not lend itself to parallelized operations.
+
+    The motivation for this class to inherit QObject is to send log messages
+    via signals to the logging window.
     """
 
+    log = pyqtSignal(str)
+
     def __init__(self):
+        super().__init__()
         # Create the socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -43,7 +52,7 @@ class NetworkInterface:
         sock.bind(('', MULTICAST_PORT))
         self.sock = sock
 
-        self.mac = '00:0b:ad:c0:ff:ee'
+        self.mac = IP_ASSIGN_MAC
 
     def do_discovery(self) -> dict:
         """Send a requests for configurations, and return a dictionary of
@@ -51,6 +60,7 @@ class NetworkInterface:
         message = Message(source=self.mac,
                           command=commands.REQUEST_CONFIG,
                           payload=b'')
+        self.log.emit(f'Doing discovery:\n{str(message)}')
         self.sock.sendto(message.to_bytes(), NETWORK)
         # Read once the request we sent
         data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
@@ -63,6 +73,7 @@ class NetworkInterface:
                 except socket.timeout:
                     return ret
                 message = Message.from_bytes(data)
+                self.log.emit(f'Received:\n{str(message)}')
                 if message.command is commands.SEND_CONFIG:
                     ret[message.source] = message.payload
             return ret
@@ -74,6 +85,8 @@ class NetworkInterface:
                           payload=config)
         pack_no = message.packet_number
 
+        self.log.emit(f'Sending configuration:\n{str(message)}')
+
         self.sock.sendto(message.to_bytes(), NETWORK)
         # Read once the request we sent
         data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
@@ -82,6 +95,7 @@ class NetworkInterface:
             try:
                 data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
                 message = Message.from_bytes(data)
+                self.log.emit(f'Received:\n {str(message)}')
                 if message.command is commands.UPDATE_CONFIG_ACK:
                     if message.payload.packet_number == pack_no:
                         return message.payload.code
