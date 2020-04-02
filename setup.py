@@ -10,7 +10,7 @@ setup(
      packages=['ipassign'],
      install_requires=['PyQt5>=5.12.0'],
      tests_require=['pytest'],
-     python_requires='>=3.6',
+     python_requires='>=3.7',
      entry_points={
           "console_scripts": [
               'ipassign = gui.main:main',
