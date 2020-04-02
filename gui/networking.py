@@ -57,14 +57,12 @@ class NetworkInterface(QObject):
 
     def do_discovery(self) -> dict:
         """Send a requests for configurations, and return a dictionary of
-        mac addresses: Configuration"""
+        {mac address (str): Configuration}"""
         message = Message(source=self.mac,
                           command=commands.REQUEST_CONFIG,
                           payload=b'')
         self.log.emit(f'Doing discovery:\n{str(message)}')
         self.sock.sendto(message.to_bytes(), NETWORK)
-        # Read once the request we sent
-        data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
 
         ret = dict()
         while True:
@@ -74,6 +72,10 @@ class NetworkInterface(QObject):
                 except socket.timeout:
                     return ret
                 message = Message.from_bytes(data)
+
+                if message.source == self.mac:
+                    continue  # Skip our own messages
+
                 self.log.emit(f'Received:\n{str(message)}')
                 if message.command is commands.SEND_CONFIG:
                     ret[message.source] = message.payload
@@ -89,15 +91,19 @@ class NetworkInterface(QObject):
         self.log.emit(f'Sending configuration:\n{str(message)}')
 
         self.sock.sendto(message.to_bytes(), NETWORK)
-        # Read once the request we sent
-        data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
 
         while True:
             try:
                 data, address = self.sock.recvfrom(MAX_PACKET_LENGTH)
                 message = Message.from_bytes(data)
+
+                if message.source == self.mac:
+                    continue  # Skip our own messages
+
                 self.log.emit(f'Received:\n {str(message)}')
                 if message.command is commands.UPDATE_CONFIG_ACK:
+                    # We purposefully do not check the payload type
+                    # to crash hard if some messed up packet comes our way
                     if message.payload.packet_number == pack_no:
                         return message.payload.code
             except socket.timeout:
