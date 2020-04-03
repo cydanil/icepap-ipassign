@@ -57,6 +57,7 @@ config = Configuration(target_id=mac,  # will be overwritten in due time
 
 message = Message(source=mac,
                   packet_number=0,
+                  destination=mac,  # will be overwritten in due time
                   command=commands.SEND_CONFIG,
                   payload=config)
 
