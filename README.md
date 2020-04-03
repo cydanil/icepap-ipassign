@@ -6,7 +6,7 @@ IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
 Its aim is to provide an easy way to set-up network settings over UDP multicast,
 without the need for a complete DaNCE suite.
 
-![alt text](gui/action_shot.png "Action shot")
+![alt text](ipa_gui/action_shot.png "Action shot")
 
 ## Installing
 
@@ -28,7 +28,7 @@ The most common operation is the setting of the hostname, and a simple window wi
 pop up.  
 For further network settings, hit `Advanced`.
 
-The gui is further documented in [gui/gui.md](gui/gui.md)
+The gui is further documented in [ipa_gui/gui.md](ipa_gui/gui.md)
 
 ## Protocol
 
@@ -245,21 +245,21 @@ This mock server behaves like real hardware, and will send the appropriate
 replies:
 
 ```bash
-$ python utils/mock_icepap
+$ python ipa_utils/mock_icepap
 Working with e3:cd:77:a0:18:30 and dvepklrlyq, no ack: False
 ```
 
 The script also accepts a mac address as argument:
 
 ```bash
-$ python utils/mock_icepap 00:0B:AD:C0:FF:EE
+$ python ipa_utils/mock_icepap 00:0B:AD:C0:FF:EE
 Working with 00:0b:ad:c0:ff:ee and kqifwchhiz, no ack: False
 ```
 
 It's also possible to make the script not send acknowledgements:
 
 ```bash
-$ python utils/mock_icepap --nack
+$ python ipa_utils/mock_icepap --nack
 Working with 53:2e:d2:f9:7b:af and kvdkkleuqc, no ack: True
 ```
 
@@ -282,7 +282,7 @@ $ telnet icepap
 icepap login: root
 Password:
 
-root@icepap # /usr/sbin/icepap_startup_local restart
+root@icepap > /usr/sbin/icepap_startup_local restart
 Stopping ipassign listener......done
 Stopping icepap communication...done
 Removing icepap driver..........done

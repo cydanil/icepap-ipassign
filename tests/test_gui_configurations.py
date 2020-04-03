@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0,
                 os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from gui.configurations import NetworkWindow  # noqa : import not at top of file
+from ipa_gui.configurations import NetworkWindow  # noqa : import not at top of file
 
 
 def test_network_window_validate_ip_range():

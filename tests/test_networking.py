@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0,
                 os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from gui.networking import gethostbyname  # noqa : import not at top of file
+from ipa_gui.networking import gethostbyname  # noqa : import not at top of file
 
 
 def test_gethostbyname():
