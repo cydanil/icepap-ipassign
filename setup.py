@@ -10,6 +10,7 @@ setup(
      author_email='cyril.danilevski@esrf.fr',
      description='A tool to configure IcePAP network settings',
      long_description=long_description,
+     long_description_content_type="text/markdown",
      url='https://github.com/cydanil/icepap-ipassign',
      packages=['ipassign'],
      install_requires=['PyQt5>=5.12.0'],
