@@ -82,4 +82,9 @@ singleton.
 
 Messages to and from `ipassign` always have the mac address `00:D1:5E:A5:ED:00`.
 
+The socket times out on input messages after 200 ms. This was experimentally
+chosen as a decent value. Perhaps a lesser value could work, but would create
+issues in networks with more devices (eg. on awaiting configuration
+acknowledgements).
+
 [gui_workflow]: workflow.png "Image describing a user's workflow"
