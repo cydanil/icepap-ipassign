@@ -1,11 +1,15 @@
-from distutils.core import setup
+from setuptools import setup
+
+with open('README.md', 'r') as fin:
+    long_description = fin.read()
 
 setup(
      name='icepap-ipassign',
-     version='0.0.0',
+     version='2.0.0',
      author='Cyril Danilevski',
      author_email='cyril.danilevski@esrf.fr',
-     description='',
+     description='A tool to configure IcePAP network settings',
+     long_description=long_description,
      url='https://github.com/cydanil/icepap-ipassign',
      packages=['ipassign'],
      install_requires=['PyQt5>=5.12.0'],

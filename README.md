@@ -10,10 +10,9 @@ without the need for a complete DaNCE suite.
 
 ## Installing
 
-This package requires Python 3.7+.  
-Clone and download this repository, and install it with `pip`:
+This package requires Python 3.7+, and is available on pypi:
 
-    pip install .
+    pip install icepap-ipassign
 
 ## Usage
 
@@ -231,11 +230,14 @@ This message would be represented as:
 
 Error codes are defined in `ipassign.acknowledgements`.
 
-## Testing
+## Testing and Development
+
+Clone and download this repository, and install it with `pip`:
+
+    pip install -e .
 
 Testing this library done with `pytest`:
 
-    pip install .
     pytest -vv
 
 For development, a mock IcePAP server can be found in `utils/mock_icepap`.
