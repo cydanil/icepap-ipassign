@@ -1,33 +1,4 @@
 import re
-import socket
-
-
-def validate_ip_addr(val):
-    if isinstance(val, bytes):
-        try:
-            socket.inet_ntoa(val)
-            return True, val
-        except OSError:
-            return False, 'Illegal ip address bytes'
-
-    if isinstance(val, str):
-        try:
-            value = socket.inet_aton(val)
-            return True, value
-        except (OSError, ValueError):
-            return False, 'Illegal ip address string'
-
-    if isinstance(val, (list, tuple)):
-        if not all([isinstance(e, int) and e < 256 for e in val]):
-            return False, 'Only ints < 256 allowed in list'
-        try:
-            value = socket.inet_aton('.'.join([str(e) for e in val]))
-            return True, value
-        except OSError:
-            return False, 'Expected only ints < 256 in list'
-
-    return False, f'Expected str, list(int), or bytes, not {type(val)}'
-
 
 # Match lowercase mac address separated by either - or : .
 # Credit to https://stackoverflow.com/a/7629690

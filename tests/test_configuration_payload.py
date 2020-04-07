@@ -17,10 +17,10 @@ def test_instantiation():
     [hostname]    = yolo"""
 
     p = Configuration(target_id=[0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE],
-                      ip=[8, 8, 8, 8],
-                      bc=[172, 24, 155, 25],
-                      nm=[255, 255, 255, 0],
-                      gw=[172, 24, 155, 99],
+                      ip=b'\x08\x08\x08\x08',
+                      bc=b'\xac\x18\x9b\x19',
+                      nm=b'\xff\xff\xff\x00',
+                      gw=b'\xac\x18\x9bc',
                       mac=[0x00, 0x0B, 0xAD, 0xC0, 0xFF, 0xEE],
                       hostname="yolo",
                       reboot=False, dynamic=False, flash=False)

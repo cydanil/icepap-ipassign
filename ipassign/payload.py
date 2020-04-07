@@ -1,8 +1,8 @@
-import socket
+from ipaddress import AddressValueError, IPv4Address
 import struct
 
 from .enums import acknowledgements
-from .utils import validate_ip_addr, validate_mac_addr
+from .utils import validate_mac_addr
 
 
 class Configuration:
@@ -74,46 +74,50 @@ class Configuration:
 
     @property
     def ip(self):
-        return socket.inet_ntoa(self._ip)
+        return self._ip
 
     @ip.setter
     def ip(self, val):
-        ok, val = validate_ip_addr(val)
-        if not ok:
-            raise ValueError(val)
+        try:
+            val = IPv4Address(val)
+        except AddressValueError:
+            raise ValueError(val) from None
         self._ip = val
 
     @property
     def bc(self):
-        return socket.inet_ntoa(self._bc)
+        return self._bc
 
     @bc.setter
     def bc(self, val):
-        ok, val = validate_ip_addr(val)
-        if not ok:
-            raise ValueError(val)
+        try:
+            val = IPv4Address(val)
+        except AddressValueError:
+            raise ValueError(val) from None
         self._bc = val
 
     @property
     def nm(self):
-        return socket.inet_ntoa(self._nm)
+        return self._nm
 
     @nm.setter
     def nm(self, val):
-        ok, val = validate_ip_addr(val)
-        if not ok:
-            raise ValueError(val)
+        try:
+            val = IPv4Address(val)
+        except AddressValueError:
+            raise ValueError(val) from None
         self._nm = val
 
     @property
     def gw(self):
-        return socket.inet_ntoa(self._gw)
+        return self._gw
 
     @gw.setter
     def gw(self, val):
-        ok, val = validate_ip_addr(val)
-        if not ok:
-            raise ValueError(val)
+        try:
+            val = IPv4Address(val)
+        except AddressValueError:
+            raise ValueError(val) from None
         self._gw = val
 
     @property
@@ -136,13 +140,13 @@ class Configuration:
         target_id = barray[:6]
         target_id = struct.unpack('BBBBBB', target_id)
         ip = barray[6:10]
-        ip = struct.unpack('BBBB', ip)
+        ip = IPv4Address(ip)
         bc = barray[10:14]
-        bc = struct.unpack('BBBB', bc)
+        bc = IPv4Address(bc)
         nm = barray[14:18]
-        nm = struct.unpack('BBBB', nm)
+        nm = IPv4Address(nm)
         gw = barray[18:22]
-        gw = struct.unpack('BBBB', gw)
+        gw = IPv4Address(gw)
         mac = barray[22:28]
         mac = struct.unpack('BBBBBB', mac)
 
@@ -159,10 +163,10 @@ class Configuration:
 
     def to_bytes(self):
         ret = struct.pack('BBBBBB', *self._target_id)
-        ret += self._ip
-        ret += self._bc
-        ret += self._nm
-        ret += self._gw
+        ret += self._ip.packed
+        ret += self._bc.packed
+        ret += self._nm.packed
+        ret += self._gw.packed
         ret += struct.pack('BBBBBB', *self._mac)
 
         flags = 0
