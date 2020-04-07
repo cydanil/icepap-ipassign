@@ -54,7 +54,7 @@ The `Reset` button resets the fields with the values previously obtained from
 the device (passed to the window upon drawing), that is stored in `self._config`.
 
 Within `NetworkWindow`, IP address fields are validated using
-`ipassing.utils.validate_ip_addr`.  
+`ipaddress.IPv4Address`.  
 As with `HostnameWindow`, the hostname is validated against RFC 1123.
 
 If any field is invalid, `Apply` will be disabled.

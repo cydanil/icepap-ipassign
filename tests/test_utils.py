@@ -1,38 +1,4 @@
-from ipassign.utils import validate_ip_addr, validate_mac_addr
-
-
-def test_validate_ip_addr():
-    expected = b'\x7f\x00\x00\x01'
-
-    ok, val = validate_ip_addr('127.0.0.1')
-    assert ok
-    assert val == expected
-
-    ok, val = validate_ip_addr(expected)
-    assert ok
-    assert val == expected
-
-    ok, val = validate_ip_addr('notanip')
-    assert ok is False
-    assert val == 'Illegal ip address string'
-
-    ok, val == validate_ip_addr(b'\xFF\xFF\x03')
-    assert ok is False
-    assert val == 'Illegal ip address string'
-
-    ok, val = validate_ip_addr([127, 0, 0, 1])
-    assert ok
-    assert val == expected
-
-    ok, val = validate_ip_addr([256])
-    assert ok is False
-    assert val == 'Only ints < 256 allowed in list'
-
-    ok, val = validate_ip_addr(['no', 'ints', 'here', 3])
-
-    ok, val = validate_ip_addr(1)
-    assert ok is False
-    assert val == "Expected str, list(int), or bytes, not <class 'int'>"
+from ipassign.utils import validate_mac_addr
 
 
 def test_validate_mac_addr():

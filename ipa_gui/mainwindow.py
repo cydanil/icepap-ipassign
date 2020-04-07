@@ -66,7 +66,7 @@ class MainWindow(QObject):
 
         for mac, device in self.devices.items():
             line = (mac + '    '
-                    + device.ip.ljust(16) + '    '
+                    + f'{device.ip}'.ljust(16) + '    '
                     + device.hostname)
             self.lwDevices.addItem(line)
 

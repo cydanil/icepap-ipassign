@@ -1,10 +1,10 @@
+from ipaddress import AddressValueError, IPv4Address
 import string
 
 from PyQt5.QtCore import pyqtSignal, QObject, QRect, Qt
 from PyQt5.QtWidgets import (QCheckBox, QDialog, QGroupBox,
                              QLineEdit, QMessageBox, QPushButton)
 
-from ipassign.utils import validate_ip_addr
 from ipassign import Configuration, acknowledgements
 
 from .networking import gethostbyname, network
@@ -343,8 +343,11 @@ class NetworkWindow(QObject):
                     and not content.startswith('-')):
                 ok = True
         else:  # it's an IP address string
-            if content.count('.') == 3:
-                ok, _ = validate_ip_addr(content)
+            try:
+                IPv4Address(content)
+                ok = True
+            except AddressValueError:
+                ok = False
         if ok:
             color = GREEN
             self.pbApply.setEnabled(True)
@@ -364,10 +367,10 @@ class NetworkWindow(QObject):
         self._config = config
         self.leHostname.setText(config.hostname)
         self.leMac.setText(config.mac.upper())
-        self.leIP.setText(config.ip)
-        self.leNetmask.setText(config.nm)
-        self.leGateway.setText(config.gw)
-        self.leBroadcast.setText(config.bc)
+        self.leIP.setText(str(config.ip))
+        self.leNetmask.setText(str(config.nm))
+        self.leGateway.setText(str(config.gw))
+        self.leBroadcast.setText(str(config.bc))
         self.cbReboot.setChecked(False)
         self.cbDynamic.setChecked(False)
         self.cbFlash.setChecked(False)
