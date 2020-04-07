@@ -141,7 +141,7 @@ class HostnameWindow(QObject):
         self.parent.close()
 
         ret = network.send_configuration(config)
-        msg = f'{config.mac} ({config.hostname}) '
+        msg = f'<b>{config.mac.upper()}</b> '
         if ret is None:
             msg += 'did not send an acknowledgment in time!'
             QMessageBox.warning(self.parent, 'No acknowledgement!', msg)
@@ -405,7 +405,7 @@ class NetworkWindow(QObject):
         config.flash = self.cbFlash.isChecked()
 
         ret = network.send_configuration(config)
-        msg = f'{config.mac} ({config.hostname}) '
+        msg = f'<b>{config.mac.upper()}</b> '
         if config.reboot:
             msg += 'will reboot. Please allow 45 seconds before it reappearing'
             QMessageBox.information(self.parent, 'Device Reboot', msg)
