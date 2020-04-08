@@ -1,4 +1,4 @@
-from ipaddress import AddressValueError, IPv4Address
+from ipaddress import AddressValueError, IPv4Address, IPv4Network
 import string
 
 from PyQt5.QtCore import pyqtSignal, QObject, QRect, Qt
@@ -434,11 +434,9 @@ class NetworkWindow(QObject):
     def validate_ip_range(netmask, *ips):
         """Validate that all ips are within the netmask"""
         bytes_ = len([b for b in netmask.split('.') if b == '255'])
-        ok = True
-        for idx in range(len(ips)-1):
-            current = ips[idx]
-            current = '.'.join(current.split('.')[:bytes_])
-            next_ = ips[idx+1]
-            next_ = '.'.join(next_.split('.')[:bytes_])
-            ok = ok and current == next_
-        return ok
+
+        network = '.'.join(str(ips[0]).split('.')[:bytes_])
+        network += '.0' * (4 - bytes_)
+        network = IPv4Network(f'{network}/{8 * bytes_}')
+
+        return all([IPv4Address(ip) in network for ip in ips])
