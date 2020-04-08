@@ -349,34 +349,37 @@ class NetworkWindow(QObject):
 
         pbApply_enabled = True
 
+        # Validate the hostname
+        val = self.leHostname.text()
+        valid_chars = all([c in VALID_HN_CHARS for c in val])
+        if (val and valid_chars and not val.startswith('-')):
+            color = GREEN
+        else:
+            color = RED
+            pbApply_enabled = False
+        self.leHostname.setStyleSheet('QLineEdit { background-color: %s }'
+                                      % color)
+
+        # Validate networking elements
         for item in (self.leIP, self.leGateway,
                      self.leNetmask, self.leBroadcast):
-            ok = False
-            content = item.text()
-            color = RED
-
-            if 'leHostname' in item.objectName():
-                if (content and all([c in VALID_HN_CHARS for c in content])
-                        and not content.startswith('-')):
-                    ok = True
-            else:  # it's an IP address string
-                try:
-                    IPv4Address(content)
-                    ok = True
-                except AddressValueError:
-                    ok = False
-            if ok:
+            try:
+                IPv4Address(item.text())
                 color = GREEN
-            else:
+            except AddressValueError:
                 pbApply_enabled = False
+                color = RED
             item.setStyleSheet('QLineEdit { background-color: %s }' % color)
 
+        # Validate commands
         if any([self.cbReboot.isChecked(),
                 self.cbDynamic.isChecked(),
                 self.cbFlash.isChecked()]):
             pbApply_enabled &= True
         else:
             pbApply_enabled = False
+
+        # Set pbApply after having validated all other fields
         self.pbApply.setEnabled(pbApply_enabled)
 
     def switch_mode(self):
