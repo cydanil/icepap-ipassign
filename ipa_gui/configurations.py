@@ -279,6 +279,7 @@ class NetworkWindow(QObject):
         cbDynamic.setText('Dynamic')
         cbDynamic.setGeometry(QRect(20, 30, 160, 20))
         cbDynamic.setToolTip('Apply immediately, whitout reboot')
+        cbDynamic.stateChanged.connect(self.validator)
         self.cbDynamic = cbDynamic
 
         cbFlash = QCheckBox(gbApply)
@@ -286,6 +287,7 @@ class NetworkWindow(QObject):
         cbFlash.setText('Write to Flash')
         cbFlash.setGeometry(QRect(20, 60, 160, 20))
         cbFlash.setToolTip("Write settings to the device's flash")
+        cbFlash.stateChanged.connect(self.validator)
         self.cbFlash = cbFlash
 
         cbReboot = QCheckBox(gbApply)
@@ -293,6 +295,7 @@ class NetworkWindow(QObject):
         cbReboot.setText('Reboot')
         cbReboot.setGeometry(QRect(20, 90, 160, 20))
         cbReboot.setToolTip('Reboot after applying the settings')
+        cbReboot.stateChanged.connect(self.validator)
         self.cbReboot = cbReboot
 
         pbApply = QPushButton(gbApply)
@@ -336,28 +339,45 @@ class NetworkWindow(QObject):
         self.config = None
 
     def validator(self):
-        sender = self.sender()
-        content = sender.text()
-        ok = False
-        color = RED
+        """Greedy validator that checks all fields at once.
 
-        if hasattr(self, 'pbApply'):
-            self.pbApply.setEnabled(False)
+        The validator is greedy in order to correctly assert the state
+        of `self.pbApply` on any change.
+        """
+        if not hasattr(self, 'pbApply'):  # True at initalisation
+            return
 
-        if 'leHostname' in sender.objectName():
-            if (content and all([c in VALID_HN_CHARS for c in content])
-                    and not content.startswith('-')):
-                ok = True
-        else:  # it's an IP address string
-            try:
-                IPv4Address(content)
-                ok = True
-            except AddressValueError:
-                ok = False
-        if ok:
-            color = GREEN
-            self.pbApply.setEnabled(True)
-        sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
+        pbApply_enabled = True
+
+        for item in (self.leIP, self.leGateway,
+                     self.leNetmask, self.leBroadcast):
+            ok = False
+            content = item.text()
+            color = RED
+
+            if 'leHostname' in item.objectName():
+                if (content and all([c in VALID_HN_CHARS for c in content])
+                        and not content.startswith('-')):
+                    ok = True
+            else:  # it's an IP address string
+                try:
+                    IPv4Address(content)
+                    ok = True
+                except AddressValueError:
+                    ok = False
+            if ok:
+                color = GREEN
+            else:
+                pbApply_enabled = False
+            item.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+        if any([self.cbReboot.isChecked(),
+                self.cbDynamic.isChecked(),
+                self.cbFlash.isChecked()]):
+            pbApply_enabled &= True
+        else:
+            pbApply_enabled = False
+        self.pbApply.setEnabled(pbApply_enabled)
 
     def switch_mode(self):
         # We purposefully discard changes other than hostname
