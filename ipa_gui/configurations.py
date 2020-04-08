@@ -54,6 +54,9 @@ class HostnameWindow(QObject):
 
     Setting the hostname is the most common operation, and is ipassign's
     default mode of operation.
+
+    This mode of setting will write the configuration to flash and apply it
+    dynamically.
     """
 
     done = pyqtSignal()
@@ -139,6 +142,9 @@ class HostnameWindow(QObject):
         self._config.hostname = hostname
         config, self._config = self._config, None
         self.parent.close()
+
+        config.flash = True
+        config.dynamic = True
 
         ret = network.send_configuration(config)
         msg = f'<b>{config.mac.upper()}</b> '
