@@ -1,4 +1,4 @@
-from ipaddress import AddressValueError, IPv4Address
+from ipaddress import AddressValueError, IPv4Address, IPv4Network
 import string
 
 from PyQt5.QtCore import pyqtSignal, QObject, QRect, Qt
@@ -54,6 +54,9 @@ class HostnameWindow(QObject):
 
     Setting the hostname is the most common operation, and is ipassign's
     default mode of operation.
+
+    This mode of setting will write the configuration to flash and apply it
+    dynamically.
     """
 
     done = pyqtSignal()
@@ -139,6 +142,9 @@ class HostnameWindow(QObject):
         self._config.hostname = hostname
         config, self._config = self._config, None
         self.parent.close()
+
+        config.flash = True
+        config.dynamic = True
 
         ret = network.send_configuration(config)
         msg = f'<b>{config.mac.upper()}</b> '
@@ -273,6 +279,7 @@ class NetworkWindow(QObject):
         cbDynamic.setText('Dynamic')
         cbDynamic.setGeometry(QRect(20, 30, 160, 20))
         cbDynamic.setToolTip('Apply immediately, whitout reboot')
+        cbDynamic.stateChanged.connect(self.validator)
         self.cbDynamic = cbDynamic
 
         cbFlash = QCheckBox(gbApply)
@@ -280,6 +287,7 @@ class NetworkWindow(QObject):
         cbFlash.setText('Write to Flash')
         cbFlash.setGeometry(QRect(20, 60, 160, 20))
         cbFlash.setToolTip("Write settings to the device's flash")
+        cbFlash.stateChanged.connect(self.validator)
         self.cbFlash = cbFlash
 
         cbReboot = QCheckBox(gbApply)
@@ -287,6 +295,7 @@ class NetworkWindow(QObject):
         cbReboot.setText('Reboot')
         cbReboot.setGeometry(QRect(20, 90, 160, 20))
         cbReboot.setToolTip('Reboot after applying the settings')
+        cbReboot.stateChanged.connect(self.validator)
         self.cbReboot = cbReboot
 
         pbApply = QPushButton(gbApply)
@@ -330,28 +339,48 @@ class NetworkWindow(QObject):
         self.config = None
 
     def validator(self):
-        sender = self.sender()
-        content = sender.text()
-        ok = False
-        color = RED
+        """Greedy validator that checks all fields at once.
 
-        if hasattr(self, 'pbApply'):
-            self.pbApply.setEnabled(False)
+        The validator is greedy in order to correctly assert the state
+        of `self.pbApply` on any change.
+        """
+        if not hasattr(self, 'pbApply'):  # True at initalisation
+            return
 
-        if 'leHostname' in sender.objectName():
-            if (content and all([c in VALID_HN_CHARS for c in content])
-                    and not content.startswith('-')):
-                ok = True
-        else:  # it's an IP address string
-            try:
-                IPv4Address(content)
-                ok = True
-            except AddressValueError:
-                ok = False
-        if ok:
+        pbApply_enabled = True
+
+        # Validate the hostname
+        val = self.leHostname.text()
+        valid_chars = all([c in VALID_HN_CHARS for c in val])
+        if (val and valid_chars and not val.startswith('-')):
             color = GREEN
-            self.pbApply.setEnabled(True)
-        sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
+        else:
+            color = RED
+            pbApply_enabled = False
+        self.leHostname.setStyleSheet('QLineEdit { background-color: %s }'
+                                      % color)
+
+        # Validate networking elements
+        for item in (self.leIP, self.leGateway,
+                     self.leNetmask, self.leBroadcast):
+            try:
+                IPv4Address(item.text())
+                color = GREEN
+            except AddressValueError:
+                pbApply_enabled = False
+                color = RED
+            item.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+        # Validate commands
+        if any([self.cbReboot.isChecked(),
+                self.cbDynamic.isChecked(),
+                self.cbFlash.isChecked()]):
+            pbApply_enabled &= True
+        else:
+            pbApply_enabled = False
+
+        # Set pbApply after having validated all other fields
+        self.pbApply.setEnabled(pbApply_enabled)
 
     def switch_mode(self):
         # We purposefully discard changes other than hostname
@@ -428,11 +457,9 @@ class NetworkWindow(QObject):
     def validate_ip_range(netmask, *ips):
         """Validate that all ips are within the netmask"""
         bytes_ = len([b for b in netmask.split('.') if b == '255'])
-        ok = True
-        for idx in range(len(ips)-1):
-            current = ips[idx]
-            current = '.'.join(current.split('.')[:bytes_])
-            next_ = ips[idx+1]
-            next_ = '.'.join(next_.split('.')[:bytes_])
-            ok = ok and current == next_
-        return ok
+
+        network = '.'.join(str(ips[0]).split('.')[:bytes_])
+        network += '.0' * (4 - bytes_)
+        network = IPv4Network(f'{network}/{8 * bytes_}')
+
+        return all([IPv4Address(ip) in network for ip in ips])

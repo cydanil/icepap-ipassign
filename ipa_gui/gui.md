@@ -34,6 +34,8 @@ mode of operation.
 The hostname is validated with respect to RFC 1123, section 2.1. If the
 hostname is not valid, the `Apply` button is disabled.
 
+The hostname will be written to flash and applied dynamically.
+
 The `Advanced` push-button allows to switch to the `NetworkWindow` view.  
 
 ## NetworkWindow

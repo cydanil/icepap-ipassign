@@ -294,3 +294,7 @@ Starting ipassign listener......done
 ```
 
 The device will then appear in `ipassign` upon doing a `Refresh`.
+
+Sending a configuration without any command flags will do nothing.  
+For a configuration to take effect, it should be applied dynamically and/or
+written to flash.
