@@ -298,3 +298,8 @@ The device will then appear in `ipassign` upon doing a `Refresh`.
 Sending a configuration without any command flags will do nothing.  
 For a configuration to take effect, it should be applied dynamically and/or
 written to flash.
+
+Whilst the protocol contains a mac address field in its configuration payload,
+an IcePAP mac address is not reconfigurable. As such, the mac address should
+remain the same as the target mac in the header, which was obtained from a
+`SEND_CONFIG` message.
