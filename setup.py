@@ -13,7 +13,7 @@ setup(
      long_description_content_type="text/markdown",
      url='https://github.com/cydanil/icepap-ipassign',
      packages=['ipassign', 'ipa_gui', 'ipa_utils'],
-     install_requires=['PyQt5>=5.12.0'],
+     install_requires=['PyQt5>=5.12.0', 'netifaces>=0.10.9'],
      tests_require=['pytest'],
      python_requires='>=3.7',
      entry_points={
