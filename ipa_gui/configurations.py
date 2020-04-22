@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QCheckBox, QDialog, QGroupBox,
 
 from ipassign import Configuration, acknowledgements
 
-from .networking import gethostbyname, network
+from .networking import from_hostname, network
 
 # These are used to validate hostnames
 VALID_HN_CHARS = string.ascii_letters + string.digits + '-'
@@ -50,10 +50,11 @@ def display_config_window(config: Configuration = None) -> None:
 
 
 class HostnameWindow(QObject):
-    """HostnameWindow only allows the setting of a device's hostname.
+    """HostnameWindow sets a device's configuration from its hostname, by
+    performing look-ups.
 
-    Setting the hostname is the most common operation, and is ipassign's
-    default mode of operation.
+    Configuring network settings by hostname is the most common operation, and
+    is ipassign's default mode of operation.
 
     This mode of setting will write the configuration to flash and apply it
     dynamically.
@@ -118,7 +119,9 @@ class HostnameWindow(QObject):
 
         if (content and all([c in VALID_HN_CHARS for c in content])
                 and not content.startswith('-')):
-            color = GREEN
+            ok, _ = from_hostname(content)
+            if ok:
+                color = GREEN
 
         if color is GREEN:
             self.pbApply.setEnabled(True)
@@ -138,11 +141,17 @@ class HostnameWindow(QObject):
 
     def apply(self):
         hostname = self.leHostname.text()
-        self.log.emit(f'Renaming {self._config.hostname} -> {hostname}')
+        self.log.emit(f'Resetting {self._config.hostname} -> {hostname}')
         self._config.hostname = hostname
         config, self._config = self._config, None
         self.parent.close()
 
+        # The hostname was already validated prior to enabling pbApply.
+        _, ret = from_hostname(hostname)
+        config.ip = ret['ip']
+        config.gw = ret['gw']
+        config.bc = ret['bc']
+        config.nm = ret['nm']
         config.flash = True
         config.dynamic = True
 
@@ -406,9 +415,16 @@ class NetworkWindow(QObject):
         self.parent.show()
 
     def query_dns(self):
-        val = gethostbyname(self.leHostname.text())
-        if val:
-            self.leIP.setText(val)
+        ok, ret = from_hostname(self.leHostname.text())
+        if ok:
+            self.leIP.setText(ret['ip'])
+            self.leGateway.setText(ret['gw'])
+            self.leNetmask.setText(ret['nm'])
+            self.leBroadcast.setText(ret['bc'])
+        else:
+            # pbApply is purposefully not disabled here.
+            self.leHostname.setStyleSheet('QLineEdit { background-color: %s }'
+                                          % RED)
 
     def reset(self):
         self.show(self._config)

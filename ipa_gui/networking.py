@@ -1,7 +1,7 @@
 import socket
 import struct
 
-from typing import Union
+import netifaces
 
 from PyQt5.QtCore import pyqtSignal, QObject
 
@@ -113,8 +113,16 @@ class NetworkInterface(QObject):
 network = NetworkInterface()
 
 
-def gethostbyname(name: str) -> Union[bool, str]:
+def from_hostname(name: str) -> dict:
     try:
-        return socket.gethostbyname(name)
+        ip = socket.gethostbyname(name)
     except socket.gaierror:
-        return False
+        return False, 'Not a known hostname'
+
+    gw, iface = netifaces.gateways()['default'][netifaces.AF_INET]
+
+    info = netifaces.ifaddresses(iface)[netifaces.AF_INET][0]
+    nm = info['netmask']
+    bc = info['broadcast']
+
+    return True, {'ip': ip, 'gw': gw, 'nm': nm, 'bc': bc}

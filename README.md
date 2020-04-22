@@ -24,9 +24,9 @@ Launch it so:
 In the main window, you will be given a list of discovered devices. Clicking on one
 will show its configuration window.
 
-The most common operation is the setting of the hostname, and a simple window will
-pop up.  
-For further network settings, hit `Advanced`.
+The most common operation is the configuration of network setting from the hostname,
+and a simple window will pop up, if found in the DNS.  
+For further configuration, hit `Advanced`.
 
 The gui is further documented in [ipa_gui/gui.md](ipa_gui/gui.md)
 
