@@ -27,14 +27,17 @@ properties.
 
 ## HostnameWindow
 
-HostnameWindow only allows the setting of a device's hostname.  
-Setting the hostname is the most common operation, and is ipassign's default
-mode of operation.
+HostnameWindow sets a device's configuration from its hostname, by performing
+look-ups.
+Configuring network settings by hostname is the most common operation, and is
+passign's default mode of operation.
 
 The hostname is validated with respect to RFC 1123, section 2.1. If the
 hostname is not valid, the `Apply` button is disabled.
 
-The hostname will be written to flash and applied dynamically.
+If found in DNS, the hostname and its network settings will be written to flash
+and applied dynamically. 
+These settings are found by `networking.from_hostname`.
 
 The `Advanced` push-button allows to switch to the `NetworkWindow` view.  
 

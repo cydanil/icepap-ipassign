@@ -5,7 +5,7 @@ with open('README.md', 'r') as fin:
 
 setup(
      name='icepap-ipassign',
-     version='2.2.0',
+     version='2.3.0',
      author='Cyril Danilevski',
      author_email='cyril.danilevski@esrf.fr',
      description='A tool to configure IcePAP network settings',

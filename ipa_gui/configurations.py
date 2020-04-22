@@ -50,10 +50,11 @@ def display_config_window(config: Configuration = None) -> None:
 
 
 class HostnameWindow(QObject):
-    """HostnameWindow only allows the setting of a device's hostname.
+    """HostnameWindow sets a device's configuration from its hostname, by
+    performing look-ups.
 
-    Setting the hostname is the most common operation, and is ipassign's
-    default mode of operation.
+    Configuring network settings by hostname is the most common operation, and
+    is ipassign's default mode of operation.
 
     This mode of setting will write the configuration to flash and apply it
     dynamically.
@@ -421,6 +422,7 @@ class NetworkWindow(QObject):
             self.leNetmask.setText(ret['nm'])
             self.leBroadcast.setText(ret['bc'])
         else:
+            # pbApply is purposefully not disabled here.
             self.leHostname.setStyleSheet('QLineEdit { background-color: %s }'
                                           % RED)
 
