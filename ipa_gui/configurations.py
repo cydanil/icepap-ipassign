@@ -218,7 +218,7 @@ class NetworkWindow(QObject):
         gbIP.setGeometry(QRect(20, 80, 250, 60))
 
         leIP = QLineEdit(gbIP)
-        leIP.setObjectName('leIP1')
+        leIP.setObjectName('leIP')
         leIP.setGeometry(QRect(10, 25, 230, 30))
         leIP.textChanged.connect(self.validator)
         leIP.textChanged.emit(leIP.text())
@@ -231,7 +231,7 @@ class NetworkWindow(QObject):
         gbNetmask.setGeometry(QRect(20, 150, 250, 60))
 
         leNetmask = QLineEdit(gbNetmask)
-        leNetmask.setObjectName('leNetmask1')
+        leNetmask.setObjectName('leNetmask')
         leNetmask.setGeometry(QRect(10, 25, 230, 30))
         leNetmask.textChanged.connect(self.validator)
         leNetmask.textChanged.emit(leNetmask.text())
@@ -244,7 +244,7 @@ class NetworkWindow(QObject):
         gbGateway.setGeometry(QRect(20, 220, 250, 60))
 
         leGateway = QLineEdit(gbGateway)
-        leGateway.setObjectName('leGateway1')
+        leGateway.setObjectName('leGateway')
         leGateway.setGeometry(QRect(10, 25, 230, 30))
         leGateway.textChanged.connect(self.validator)
         leGateway.textChanged.emit(leGateway.text())
@@ -257,7 +257,7 @@ class NetworkWindow(QObject):
         gbBroadcast.setGeometry(QRect(20, 290, 250, 60))
 
         leBroadcast = QLineEdit(gbBroadcast)
-        leBroadcast.setObjectName('leBroadcast1')
+        leBroadcast.setObjectName('leBroadcast')
         leBroadcast.setGeometry(QRect(10, 25, 230, 30))
         leBroadcast.textChanged.connect(self.validator)
         leBroadcast.textChanged.emit(leBroadcast.text())
@@ -270,7 +270,7 @@ class NetworkWindow(QObject):
         gbHostname.setGeometry(QRect(330, 80, 250, 60))
 
         leHostname = QLineEdit(gbHostname)
-        leHostname.setObjectName('leHostname1')
+        leHostname.setObjectName('leHostname')
         leHostname.setGeometry(QRect(10, 25, 230, 30))
         leHostname.setToolTip(f'Valid characters are {VALID_HN_CHARS}')
         leHostname.textChanged.connect(self.validator)
