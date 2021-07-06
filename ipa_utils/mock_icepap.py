@@ -1,7 +1,6 @@
 import random
 import socket
 import string
-import struct
 import sys
 
 from ipassign import (acknowledgements, Acknowledgement,
@@ -19,8 +18,6 @@ sock.setsockopt(socket.IPPROTO_IP,
 
 # Tell the operating system to add the socket to
 # the multicast group on all interfaces.
-group = socket.inet_aton(MULTICAST_ADDR)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 mreq = socket.inet_aton(MULTICAST_ADDR) + socket.inet_aton('0.0.0.0')
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 

@@ -20,15 +20,14 @@ def main():
     # Bind to the server address
     sock.bind(('', MULTICAST_PORT))
 
-    try:
-        while True:
-            print('\nWaiting for messages...')
-            data, address = sock.recvfrom(MAX_PACKET_LENGTH)
-            print(Message.from_bytes(data))
-    except KeyboardInterrupt:
-        pass
-    finally:
-        sock.close()
+    with sock:
+        try:
+            while True:
+                print('\nWaiting for messages...')
+                data, address = sock.recvfrom(MAX_PACKET_LENGTH)
+                print(Message.from_bytes(data))
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == '__main__':
