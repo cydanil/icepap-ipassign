@@ -1,6 +1,7 @@
 # icepap-ipassign
 
-Remotely configure IcePAP network settings.
+Remotely configure IcePAP network settings.  
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/cydanil/icepap-ipassign.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cydanil/icepap-ipassign/alerts/) [![Python 3.9 application](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml/badge.svg)](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml)
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
 Its aim is to provide an easy way to set-up network settings over UDP multicast,
@@ -46,7 +47,6 @@ ipassing sending a new configuration to a device.
 Acknowledgements are sent by a device upon applying a new configuration.  
 These are not sent if the device was requested to reboot.
 
-
 A typical exchange of information has the following format:
 
     [ipassign] who's there? discovery packet
@@ -59,11 +59,9 @@ A typical exchange of information has the following format:
 
 For demonstration purposes, a simple listener is available in `utils/listener.py` and can be invoked so:
 
-```bash
-$ ipassign-listener
+    $ ipassign-listener
 
-Waiting for messages...
-```
+    Waiting for messages...
 
 Messages seen in the multicast group will then be displayed in human readable format.
 
@@ -101,12 +99,11 @@ An IPAssign packet has the following structure:
 
 `target count` is called so, to maintain consistency with other legacy code.  
 It was originally envisioned that several devices could be targeted by a single
-message, hence its uint16 format.   
+message, hence its uint16 format.  
 In practice, however, it is effectively used as a boolean: it should be
-understood as `is_not_broadcasting`. 
+understood as `is_not_broadcasting`.
 
 ---
-
 
 ### Discovery Messages
 
@@ -210,6 +207,7 @@ An acknowledgment payload has the following structure:
 - `[error code]` is a status code of having applied the received settings.
 
 Here is an acknowledgement payload:
+
 ```python
 from ipassign import acknowledgements, Acknowledgement
 
@@ -244,26 +242,18 @@ For development, a mock IcePAP server can be found in `utils/mock_icepap`.
 This mock server behaves like real hardware, and will send the appropriate
 replies:
 
-```bash
-$ python ipa_utils/mock_icepap
-Working with e3:cd:77:a0:18:30 and dvepklrlyq, no ack: False
-```
+    $ python ipa_utils/mock_icepap
+    Working with e3:cd:77:a0:18:30 and dvepklrlyq, no ack: False
 
 The script also accepts a mac address as argument:
 
-```bash
-$ python ipa_utils/mock_icepap 00:0B:AD:C0:FF:EE
-Working with 00:0b:ad:c0:ff:ee and kqifwchhiz, no ack: False
-```
+    $ python ipa_utils/mock_icepap 00:0B:AD:C0:FF:EE
+    Working with 00:0b:ad:c0:ff:ee and kqifwchhiz, no ack: False
 
 It's also possible to make the script not send acknowledgements:
 
-```bash
-$ python ipa_utils/mock_icepap --nack
-Working with 53:2e:d2:f9:7b:af and kvdkkleuqc, no ack: True
-```
-
-
+    $ python ipa_utils/mock_icepap --nack
+    Working with 53:2e:d2:f9:7b:af and kvdkkleuqc, no ack: True
 
 ## Embedded IcePAP Considerations
 
@@ -277,21 +267,19 @@ the `listener` crash.
 To restart it, telnet as `root` in the IcePAP device, and execute
 `/usr/sbin/icepap_startup_local restart`:
 
-```bash
-$ telnet icepap
-icepap login: root
-Password:
+    $ telnet icepap
+    icepap login: root
+    Password:
 
-root@icepap > /usr/sbin/icepap_startup_local restart
-Stopping ipassign listener......done
-Stopping icepap communication...done
-Removing icepap driver..........done
-Removing blisspipe driver.......done
-Loading  icepap driver..........done
-Loading  blisspipe driver.......done
-Starting icepap communication...done
-Starting ipassign listener......done
-```
+    root@icepap > /usr/sbin/icepap_startup_local restart
+    Stopping ipassign listener......done
+    Stopping icepap communication...done
+    Removing icepap driver..........done
+    Removing blisspipe driver.......done
+    Loading  icepap driver..........done
+    Loading  blisspipe driver.......done
+    Starting icepap communication...done
+    Starting ipassign listener......done
 
 The device will then appear in `ipassign` upon doing a `Refresh`.
 

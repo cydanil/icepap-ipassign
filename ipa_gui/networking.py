@@ -1,5 +1,4 @@
 import socket
-import struct
 
 import netifaces
 
@@ -41,8 +40,6 @@ class NetworkInterface(QObject):
 
         # Tell the operating system to add the socket to the multicast group
         # on all interfaces.
-        group = socket.inet_aton(MULTICAST_ADDR)
-        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
         mreq = socket.inet_aton(MULTICAST_ADDR) + socket.inet_aton('0.0.0.0')
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 

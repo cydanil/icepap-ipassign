@@ -123,7 +123,7 @@ class HostnameWindow(QObject):
             if ok:
                 color = GREEN
 
-        if color is GREEN:
+        if color == GREEN:
             self.pbApply.setEnabled(True)
         sender.setStyleSheet('QLineEdit { background-color: %s }' % color)
 
