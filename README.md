@@ -1,7 +1,10 @@
 # icepap-ipassign
 
 Remotely configure IcePAP network settings.  
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/cydanil/icepap-ipassign.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cydanil/icepap-ipassign/alerts/) [![Python 3.9 application](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml/badge.svg)](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/cydanil/icepap-ipassign.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cydanil/icepap-ipassign/alerts/)  
+[![Python 3.8 application](https://github.com/cydanil/icepap-ipassign/actions/workflows/python38.yml/badge.svg)](https://github.com/cydanil/icepap-ipassign/actions/workflows/python38.yml)  
+[![Python 3.9 application](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml/badge.svg)](https://github.com/cydanil/icepap-ipassign/actions/workflows/python39.yml)  
+[![Python 3.10 application](https://github.com/cydanil/icepap-ipassign/actions/workflows/python310.yml/badge.svg)](https://github.com/cydanil/icepap-ipassign/actions/workflows/python310.yml)  
 
 IPAssign is a tool developed within ESRF's DEG (Detector and Electronics Group).
 Its aim is to provide an easy way to set-up network settings over UDP multicast,
