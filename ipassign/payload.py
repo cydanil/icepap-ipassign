@@ -223,7 +223,7 @@ class Acknowledgement:
     [packet number] is the packet number refering to the acknowledge packet.
                     If a configuration packet was sent with packet number 5, it
                     is then possible to check that the settings match the ones
-                    in the packet of that packet.
+                    in the payload of that packet.
     [error code] is a status code of having applied the received settings.
     """
     def __init__(self, packno=0, code=0):
