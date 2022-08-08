@@ -203,7 +203,7 @@ An acknowledgment payload has the following structure:
     [packet number] # 2 bytes, uint16
     [error code]    # 2 bytes, uint16
 
-- `[packet number]` is the packet number referring to the acknowledge packet.
+- `[packet number]` is the packet number referring to the acknowledged packet.
                     If a configuration packet was sent with packet number 5,
                     it is then possible to check that the settings match the ones
                     in the packet of that packet.
